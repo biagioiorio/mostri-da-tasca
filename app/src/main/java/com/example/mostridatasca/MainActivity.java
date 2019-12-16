@@ -22,6 +22,8 @@ public class MainActivity extends AppCompatActivity{
     private String sessionId;
 
     public static final String BASE_URL = "https://ewserver.di.unimi.it/mobicomp/mostri/";
+        // Valutare se inserire il BASE_URL nel file res/values/strings.xml visto che è lo stesso per tutte le activity
+
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";    // Chiave del session_id
 
@@ -32,43 +34,39 @@ public class MainActivity extends AppCompatActivity{
 
         Log.d("MainActivity", "OnCreate");
         setSessionId();
+        // ATTENZIONE LA CHIAMATA DI RETE È ASINCRONA. Ci dobbiamo assicurare che sia stato già settato il session_id.
+        Log.d("MainActivity", "session_id settato -> " + this.sessionId);
+        // TODO: settare uno username nel caso di un nuovo utente.
+
     }
 
 
     public void setSessionId() {
         /**
+         * @author Biagio Iorio
          * Setta il valore del session_id con il valore memorizzato nelle SharedPreferences
          * con la chiave SESSION_ID_KEY. Se è vuoto dire che l'utente è nuovo:
          * faccio una chiamata di rete (nel metodo setSessionIdFromServer())
-         * al server per ottenere il session_id e lo salvo nelle SharedPreferences
+         * al server per settare il session_id.
          */
 
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
         this.sessionId = sharedPreferences.getString(SESSION_ID_KEY, "");
-
+        // this.sessionId = "";  // DEBUG: decommentare per simulare un nuovo utente.
         if (this.sessionId.isEmpty()) { // Nuovo utente
-            Log.d("MainActivity", "SessionId non presente => nuovo utente");
+            Log.d("MainActivity", "SessionId non presente. Nuovo utente. Contatto il server...");
             setSessionIdFromServer();
         }
     }
 
 
-    public void saveSessionId(String sessionId) {
+    private void setSessionIdFromServer() {
         /**
          * @author Biagio Iorio
-         * Salva in modo persistente il session_id dell'utente,
-         * se non è già presente, nelle SharedPreferences
+         * Fa la chiamata 'Register' al server e salva il valore ricevuto (session_id)
+         * nelle SharedPreferences con il metodo saveSessionId(sessionId).
          */
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putString(SESSION_ID_KEY, sessionId);
-        editor.apply();
-        Log.d("MainActivity", "session_id salvato nelle sharedPreferences.");
-    }
-
-
-    private void setSessionIdFromServer() {
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = BASE_URL + "register.php";
 
@@ -85,7 +83,7 @@ public class MainActivity extends AppCompatActivity{
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        Log.d("MainActivity", "session_id: " + sessionId);
+                        Log.d("MainActivity", "session_id (from server): " + sessionId);
                     }
                 },
                 new Response.ErrorListener() {
@@ -93,13 +91,29 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("MainActivity", "Errore");
-                        // TODO: gestisci l'errore
+                        // TODO: gestire l'errore
                     }
                 }
         );
-
         // add it to the RequestQueue
         queue.add(getRequest);
     }
+
+
+    public void saveSessionId(String sessionId) {
+        /**
+         * @author Biagio Iorio
+         * Salva in modo persistente il session_id dell'utente,
+         * se non è già presente, nelle SharedPreferences
+         */
+
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putString(SESSION_ID_KEY, sessionId);
+        editor.apply();
+        Log.d("MainActivity", "session_id salvato nelle sharedPreferences");
+    }
+
 
 }
