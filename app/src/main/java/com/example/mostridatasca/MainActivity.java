@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void saveSessionId() {
         /**
+         * @author Biagio Iorio
          * Metodo che salva in modo persistente il session_id dell'utente,
          * se non è già presente, nelle SharedPreferences
          */
