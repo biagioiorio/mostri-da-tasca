@@ -47,5 +47,7 @@ public class MainActivity extends AppCompatActivity {
         return sessionId;
     }
 
+    public void Matteo(){}
+
     public void biagio(){}
 }
