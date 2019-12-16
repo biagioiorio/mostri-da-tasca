@@ -8,8 +8,6 @@ import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
 
-    // ciao bettone
-
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";    // Chiave del session_id
 
@@ -49,4 +47,6 @@ public class MainActivity extends AppCompatActivity {
         return sessionId;
     }
 }
+
+// Matteo
 // biagio
