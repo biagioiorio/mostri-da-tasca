@@ -47,7 +47,3 @@ public class MainActivity extends AppCompatActivity {
         return sessionId;
     }
 }
-
-// MatteoBetto
-//// Matteo
-//// biagio
