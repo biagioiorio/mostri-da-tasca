@@ -46,4 +46,6 @@ public class MainActivity extends AppCompatActivity {
         String sessionId = sharedPreferences.getString(SESSION_ID_KEY, "");
         return sessionId;
     }
+
+    public void Matteo(){}
 }
