@@ -34,7 +34,7 @@ import androidx.annotation.NonNull;
 
 public class MainActivity extends AppCompatActivity{
 
-    // Branch
+    // mappe
     private String sessionId;
     private MapView mapView;
 
