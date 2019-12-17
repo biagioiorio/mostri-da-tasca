@@ -38,9 +38,6 @@ public class MainActivity extends AppCompatActivity{
     private String sessionId;
     private MapView mapView;
 
-    public static final String BASE_URL = "https://ewserver.di.unimi.it/mobicomp/mostri/";
-        // Valutare se inserire il BASE_URL nel file res/values/strings.xml visto che è lo stesso per tutte le activity
-
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";    // Chiave del session_id
 
@@ -117,6 +114,7 @@ public class MainActivity extends AppCompatActivity{
                     Log.d("Geolocalizzazione", "Ora ho i permessi per la Geolocalizzazione");
                 } else {
                     Log.d("Geolocalizzazione", "Non ho ancora ottenuti i permessi per la Geolocalizzazione");
+                    checkGeoPermission();
                 }
                 return;
             }
@@ -151,7 +149,7 @@ public class MainActivity extends AppCompatActivity{
          */
 
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = BASE_URL + "register.php";
+        String url = getString(R.string.base_url) + "register.php";
 
         // prepare the request
         JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, url, null,
