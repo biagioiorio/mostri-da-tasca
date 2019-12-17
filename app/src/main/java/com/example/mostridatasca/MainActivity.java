@@ -157,19 +157,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
          */
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d("Geolocalizzazione","Non ho i permessi per la geolocalizzazione");
-            getGeoPermission();
+            // getGeoPermission
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }else{
             Log.d("Geolocalizzazione","Ho i permessi per la geolocalizzazione");
         }
-    }
-
-
-    public void getGeoPermission(){
-        /**
-         * @author Matteo Betto
-         * controlla se l'app ha i permessi per la geolocalizzazione
-         */
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
     }
 
 
