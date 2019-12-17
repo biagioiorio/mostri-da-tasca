@@ -68,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+    //================================================================================
+    // SessionId
+    //================================================================================
     public void setSessionId() {
         /**
          * @author Biagio Iorio
@@ -143,6 +146,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+    //================================================================================
+    // GeoPermission
+    //================================================================================
     public void checkGeoPermission(){
         /**
          * @author Matteo Betto
@@ -189,6 +195,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+    //================================================================================
+    // Map
+    //================================================================================
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
