@@ -23,6 +23,9 @@ import org.json.JSONObject;
 
 
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -32,14 +35,16 @@ import androidx.annotation.NonNull;
 
 
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, Style.OnStyleLoaded {
 
     // mappe
     private String sessionId;
     private MapView mapView;
+    private MapboxMap mapboxMap;
+
 
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
-    public static final String SESSION_ID_KEY = "sessionId";    // Chiave del session_id
+    public static final String SESSION_ID_KEY = "sessionId";        // Chiave del session_id
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // serve per identificare i permessi in caso volessi gestirli
 
@@ -59,66 +64,7 @@ public class MainActivity extends AppCompatActivity{
 
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-
-                        // la mappa è pronta, si possono modificare le sue proprietà
-
-
-                    }
-                });
-            }
-        });
-
-    }
-
-    public void checkGeoPermission(){
-        /**
-         * @author Matteo Betto
-         * controlla se l'app ha i permessi per la geolocalizzazione
-         * se non li ha chiama la funzione getGeoPermission() per ottenerli
-        */
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d("Geolocalizzazione","Non ho i permessi per la geolocalizzazione");
-            getGeoPermission();
-        }else{
-            Log.d("Geolocalizzazione","Ho i permessi per la geolocalizzazione");
-        }
-    }
-
-
-    public void getGeoPermission(){
-        /**
-         * @author Matteo Betto
-         * controlla se l'app ha i permessi per la geolocalizzazione
-         */
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        /**
-         * @author Matteo Betto
-         * override del metodo per gestire il caso in cui vengano o non vengano forniti i permessi
-         */
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted
-                    Log.d("Geolocalizzazione", "Ora ho i permessi per la Geolocalizzazione");
-                } else {
-                    Log.d("Geolocalizzazione", "Non ho ancora ottenuti i permessi per la Geolocalizzazione");
-                    checkGeoPermission();
-                }
-                return;
-            }
-        }
+        mapView.getMapAsync(this);
     }
 
 
@@ -197,4 +143,68 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
+    public void checkGeoPermission(){
+        /**
+         * @author Matteo Betto
+         * controlla se l'app ha i permessi per la geolocalizzazione
+         * se non li ha chiama la funzione getGeoPermission() per ottenerli
+         */
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d("Geolocalizzazione","Non ho i permessi per la geolocalizzazione");
+            getGeoPermission();
+        }else{
+            Log.d("Geolocalizzazione","Ho i permessi per la geolocalizzazione");
+        }
+    }
+
+
+    public void getGeoPermission(){
+        /**
+         * @author Matteo Betto
+         * controlla se l'app ha i permessi per la geolocalizzazione
+         */
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        /**
+         * @author Matteo Betto
+         * override del metodo per gestire il caso in cui vengano o non vengano forniti i permessi
+         */
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                    Log.d("Geolocalizzazione", "Ora ho i permessi per la Geolocalizzazione");
+                } else {
+                    Log.d("Geolocalizzazione", "Non ho ancora ottenuti i permessi per la Geolocalizzazione");
+                    checkGeoPermission();
+                }
+                return;
+            }
+        }
+    }
+
+
+    @Override
+    public void onMapReady(@NonNull MapboxMap mapboxMap) {
+        this.mapboxMap = mapboxMap;
+        mapboxMap.setStyle(Style.MAPBOX_STREETS, this);
+    }
+
+    @Override
+    public void onStyleLoaded(@NonNull Style style) {
+        // la mappa è pronta, si possono modificare le sue proprietà
+        CameraPosition position = new CameraPosition.Builder()
+                .target(new LatLng(51.50550, -0.07520))
+                .zoom(10)
+                .tilt(20)
+                .build();
+
+        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 5000);
+
+    }
 }
