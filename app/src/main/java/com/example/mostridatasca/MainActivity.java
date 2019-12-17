@@ -21,10 +21,22 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
+import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.maps.MapView;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.maps.Style;
+
+import androidx.annotation.NonNull;
+
+
+
 public class MainActivity extends AppCompatActivity{
 
     // Branch
     private String sessionId;
+    private MapView mapView;
 
     public static final String BASE_URL = "https://ewserver.di.unimi.it/mobicomp/mostri/";
         // Valutare se inserire il BASE_URL nel file res/values/strings.xml visto che è lo stesso per tutte le activity
@@ -37,6 +49,7 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Mapbox.getInstance(this, "pk.eyJ1IjoibWF0dGVvYmV0dG8iLCJhIjoiY2szNGF1OGgwMDBhNjNucWRzY29oaTU3OCJ9.G066wR9mYwJUPmWcD_vrwQ");
         setContentView(R.layout.activity_main);
 
         Log.d("MainActivity", "OnCreate");
@@ -46,6 +59,23 @@ public class MainActivity extends AppCompatActivity{
         // TODO: settare uno username nel caso di un nuovo utente.
 
         checkGeoPermission();
+
+        mapView = findViewById(R.id.mapView);
+        mapView.onCreate(savedInstanceState);
+        mapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap mapboxMap) {
+                mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+
+                        // la mappa è pronta, si possono modificare le sue proprietà
+
+
+                    }
+                });
+            }
+        });
 
     }
 
