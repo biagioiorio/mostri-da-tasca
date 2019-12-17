@@ -18,7 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity{
-
+    // Branch
     private String sessionId;
 
     public static final String BASE_URL = "https://ewserver.di.unimi.it/mobicomp/mostri/";
