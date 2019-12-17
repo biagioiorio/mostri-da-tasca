@@ -1,8 +1,12 @@
 package com.example.mostridatasca;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.se.omapi.Session;
 import android.util.Log;
@@ -18,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity{
+
     // Branch
     private String sessionId;
 
@@ -26,6 +31,8 @@ public class MainActivity extends AppCompatActivity{
 
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";    // Chiave del session_id
+
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // serve per identificare i permessi in caso volessi gestirli
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +45,52 @@ public class MainActivity extends AppCompatActivity{
         Log.d("MainActivity", "session_id settato -> " + this.sessionId);
         // TODO: settare uno username nel caso di un nuovo utente.
 
+        checkGeoPermission();
+
+    }
+
+    public void checkGeoPermission(){
+        /**
+         * @author Matteo Betto
+         * controlla se l'app ha i permessi per la geolocalizzazione
+         * se non li ha chiama la funzione getGeoPermission() per ottenerli
+        */
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d("Geolocalizzazione","Non ho i permessi per la geolocalizzazione");
+            getGeoPermission();
+        }else{
+            Log.d("Geolocalizzazione","Ho i permessi per la geolocalizzazione");
+        }
+    }
+
+
+    public void getGeoPermission(){
+        /**
+         * @author Matteo Betto
+         * controlla se l'app ha i permessi per la geolocalizzazione
+         */
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        /**
+         * @author Matteo Betto
+         * override del metodo per gestire il caso in cui vengano o non vengano forniti i permessi
+         */
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                    Log.d("Geolocalizzazione", "Ora ho i permessi per la Geolocalizzazione");
+                } else {
+                    Log.d("Geolocalizzazione", "Non ho ancora ottenuti i permessi per la Geolocalizzazione");
+                }
+                return;
+            }
+        }
     }
 
 
