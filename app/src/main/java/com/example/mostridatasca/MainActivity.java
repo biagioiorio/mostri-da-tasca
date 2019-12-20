@@ -8,6 +8,7 @@ import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.se.omapi.Session;
 import android.util.Log;
 
@@ -21,6 +22,8 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.Handler;
+import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
@@ -37,11 +40,14 @@ import androidx.annotation.NonNull;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, Style.OnStyleLoaded {
 
-    // mappe
     private String sessionId;
     private MapView mapView;
     private MapboxMap mapboxMap;
+    private Handler myHandler = new Handler();
 
+
+    double lt = 51.50550;
+    double ln = -0.07520;
 
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";        // Chiave del session_id
@@ -65,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
+        ciclo();
     }
 
 
@@ -193,19 +201,64 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
-        mapboxMap.setStyle(Style.MAPBOX_STREETS, this);
+        mapboxMap.setStyle(Style.DARK, this);
     }
 
     @Override
     public void onStyleLoaded(@NonNull Style style) {
         // la mappa è pronta, si possono modificare le sue proprietà
         CameraPosition position = new CameraPosition.Builder()
-                .target(new LatLng(51.50550, -0.07520))
-                .zoom(10)
+                .target(new LatLng(lt, ln))
+                .zoom(18)
                 .tilt(20)
                 .build();
 
-        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 5000);
+        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1000);
 
     }
+
+    //================================================================================
+    // Ciclo
+    //================================================================================
+    private Runnable rCamera = new Runnable() {
+        @Override
+        public void run() {
+            aggiornaCamera(lt=lt+0.0001,ln=ln+0.0001);
+            ciclo();
+        }
+    };
+
+    public void ciclo(){
+        myHandler.postDelayed(rCamera,1000);
+    }
+
+    public void aggiornaCamera(double lat, double lon){
+
+        CameraPosition position = new CameraPosition.Builder()
+                .target(new LatLng(lat, lon))
+                .zoom(18)
+                .tilt(20)
+                .build();
+
+        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1000);
+
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
