@@ -5,10 +5,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.se.omapi.Session;
 import android.util.Log;
 
@@ -23,8 +29,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Handler;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -45,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapboxMap mapboxMap;
     private Handler myHandler = new Handler();
 
-
     double lt = 51.50550;
     double ln = -0.07520;
 
@@ -53,6 +66,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static final String SESSION_ID_KEY = "sessionId";        // Chiave del session_id
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // serve per identificare i permessi in caso volessi gestirli
+
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationCallback locationCallback;
+    private final LocationListener mLocationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s) {
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +109,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView.getMapAsync(this);
 
         ciclo();
+
+
+
     }
 
 
@@ -96,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             setSessionIdFromServer();
         }
     }
-
 
     private void setSessionIdFromServer() {
         /**
@@ -137,7 +175,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         queue.add(getRequest);
     }
 
-
     public void saveSessionId(String sessionId) {
         /**
          * @author Biagio Iorio
@@ -152,7 +189,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         editor.apply();
         Log.d("MainActivity", "session_id salvato nelle sharedPreferences");
     }
-
 
     //================================================================================
     // GeoPermission
@@ -171,7 +207,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.d("Geolocalizzazione","Ho i permessi per la geolocalizzazione");
         }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -193,7 +228,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
-
 
     //================================================================================
     // Map
@@ -242,6 +276,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1000);
 
+    }
+
+    public void onButtonProfiloClick(View v) {
+        Log.d("Pulsante: ", "Profilo");
+        Intent intent = new Intent(getApplicationContext(), Profilo.class);
+        startActivity(intent);
+    }
+
+    public void onButtonElencoClick(View v) {
+        Log.d("Pulsante: ", "Elenco");
+        Intent intent = new Intent(getApplicationContext(), TopPlayers.class);
+        startActivity(intent);
     }
 
 }
