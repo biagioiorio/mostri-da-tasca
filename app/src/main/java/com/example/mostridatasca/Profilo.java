@@ -3,6 +3,7 @@ package com.example.mostridatasca;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -92,6 +93,8 @@ public class Profilo extends AppCompatActivity {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        TextView textUsername = (TextView) findViewById(R.id.textUsername);
+                        textUsername.setText("Errore di rete riprovare più tardi");
                         Log.d("Volley", "Errore");
                     }
                 }
@@ -139,4 +142,12 @@ public class Profilo extends AppCompatActivity {
         );
         queue.add(getRequest);
     }
+
+    public void onButtonModificaClick(View v) {
+        Log.d(" Pulsante: ", " Modifica Profilo ");
+        Intent intent = new Intent(getApplicationContext(), ModificaProfilo.class);
+        startActivity(intent);
+    }
+
 }
+

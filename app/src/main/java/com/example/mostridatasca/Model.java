@@ -22,27 +22,12 @@ public class Model {
         return contacts.size();
     }
 
-    public void initWithFakeData() {
-        contacts.add("Andrea");
-        contacts.add("Bruna");
-        contacts.add("Carlo");
-        contacts.add("Daniela");
-        contacts.add("Ettore");
-        contacts.add("Filippa");
-        contacts.add("Guido");
-        contacts.add("Ilario");
-        contacts.add("Laura");
-        contacts.add("Mario");
-        contacts.add("Bruna");
-        contacts.add("Carlo");
-        contacts.add("Daniela");
-        contacts.add("Ettore");
-        contacts.add("Filippa");
-        contacts.add("Guido");
-        contacts.add("Ilario");
-        contacts.add("Laura");
-        contacts.add("Mario");
-        contacts.add("Nicoletta");
+    public void add(String nome){
+        contacts.add(nome);
+    }
+
+    public void clear(){
+        contacts.clear();
     }
 
 }

@@ -16,17 +16,26 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        /**
+         * @author Betto Matteo
+         */
         View view = mInflater.inflate(R.layout.single_row, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        /**
+         * @author Betto Matteo
+         */
         String text = Model.getInstance().get(position);
         holder.setText(position + 1 + " " + text);
     }
     @Override
     public int getItemCount() {
+        /**
+         * @author Betto Matteo
+         */
         return Model.getInstance().getSize();
     }
 }
