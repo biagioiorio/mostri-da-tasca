@@ -1,5 +1,11 @@
 package com.example.mostridatasca.com.example.mostridatasca.models;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import com.example.mostridatasca.R;
+
 public class MonsterCandy {
     private String id;
     private String type;
@@ -7,14 +13,16 @@ public class MonsterCandy {
     private String name;
     private double lat;
     private double lon;
+    private Bitmap img;
 
-    public MonsterCandy(String id, String type, String size, String name, double lat, double lon) {
+    public MonsterCandy(Context context, String id, String type, String size, String name, double lat, double lon) {
         this.id = id;
         this.type = type;
         this.size = size;
         this.name = name;
         this.lat = lat;
         this.lon = lon;
+        this.img = BitmapFactory.decodeResource(context.getResources(), R.drawable.default_marker);
     }
 
     public String getId() {
@@ -75,5 +83,13 @@ public class MonsterCandy {
                 ", lat=" + lat +
                 ", lon=" + lon +
                 '}';
+    }
+
+    public Bitmap getImg() {
+        return img;
+    }
+
+    public void setImg(Bitmap img) {
+        this.img = img;
     }
 }
