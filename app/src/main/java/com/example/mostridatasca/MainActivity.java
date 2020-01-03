@@ -1,17 +1,14 @@
 package com.example.mostridatasca;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
+import android.util.Base64;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -45,7 +42,6 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 
@@ -81,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";       // Chiave del session_id
 
-    public static final String SYMBOL_IMAGE = "pika";
+    public static final String SYMBOL_IMAGE = "default_marker";
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // serve per identificare i permessi in caso volessi gestirli
 
@@ -209,9 +205,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         symbolManager.setIconAllowOverlap(true);
         symbolManager.setIconIgnorePlacement(true);
 
-        if(!monstersAndCandiesArraylist.isEmpty()){
-            showMonstersAndCandiesOnMap();
-        }
+        /*if(!monstersAndCandiesArraylist.isEmpty()){
+            showMonsterCandyOnMap();
+        }*/
     }
 
     private void enableLocationComponent() {
@@ -294,7 +290,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
          * Fa la chiamata 'getMap' al server
          */
 
-        //RequestQueue queue = Volley.newRequestQueue(this);
         String url = getString(R.string.base_url) + "getmap.php";
 
         final JSONObject jsonBody = new JSONObject();
@@ -317,12 +312,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onResponse(JSONObject response) {
                         Log.d("MainActivity", "getMonstersAndCandies() - Response: " + response.toString());
                         monstersAndCandiesArraylist.clear(); // Pulisco l'arraylist dei mostri/caramelle dai dati vecchi
-                        parseMonstersAndCandiesResponse(response);
-                        showMonstersAndCandiesOnMap();
+                        parseMonstersAndCandiesResponse(response);  // carico i mostri/caramelle nell'arraylist
+                        for(MonsterCandy monsterCandy : monstersAndCandiesArraylist){
+                            downloadImage(monsterCandy);
+                        }
                     }
                 },
                 new Response.ErrorListener() {
-
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("MainActivity", "getMonstersAndCandies - Error: " + error.toString());
@@ -333,8 +329,62 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         queue.add(getRequest);  // aggiungo la richiesta alla coda
     }
 
+
+    private void downloadImage(final MonsterCandy monsterCandy) {
+        String targetId = monsterCandy.getId();
+        String url = getString(R.string.base_url) + "getimage.php";
+
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
+        String sessionId = sharedPreferences.getString(SESSION_ID_KEY, "");
+
+        // Preparo il body con il session_id
+        final JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("session_id", sessionId);
+            jsonBody.put("target_id", targetId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.d("MainActivity","downloadImage() - JSON: problema");
+        }
+        Log.d("MainActivity","downloadImage() - JSON body: " + jsonBody.toString());
+
+        // prepare the request
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("MainActivity", "downloadImage() - Response: " + response.toString());
+                        String img_base64 = "";
+                        
+                        try {
+                            img_base64 = response.getString("img");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        byte[] decodedString = Base64.decode(img_base64, Base64.DEFAULT);
+                        Bitmap img_bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+                        monsterCandy.setImg(img_bitmap);    // setto la proprietà img dell'oggetto monsterCandy con l'immagine appena scaricata
+                        showMonsterCandyOnMap(monsterCandy);  // visualizzo l'oggetto monsterCandy sulla mappa
+                    }
+                },
+                new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("MainActivity", "downloadImage - Error: " + error.toString());
+                        // TODO: gestire l'errore
+                    }
+                }
+        );
+        queue.add(getRequest);  // aggiungo la richiesta alla coda
+    }
+
     private void parseMonstersAndCandiesResponse(JSONObject response) {
         /***
+         * @author Biagio Iorio
          * Prende la risposta di getMonstersAndCandies() [getmap],
          * crea un oggetto MonsterCandy per ogni mostro/caramella
          * e lo aggiunge all'arraylist monstersAndCandiesArraylist
@@ -366,23 +416,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
 
             // Creo l'oggetto monsterCandy con gli attributi estratti e lo aggiungo all'ArrayList con tutti i mostri/caramelle
-            MonsterCandy monsterCandy = new MonsterCandy(id, type, size, name, lat, lon);
+            MonsterCandy monsterCandy = new MonsterCandy(this, id, type, size, name, lat, lon);
             this.monstersAndCandiesArraylist.add(monsterCandy);
             Log.d("MainActivity","MONSTER/CANDY added to list: " + monsterCandy.toString());
         }
     }
 
-    public void showMonstersAndCandiesOnMap() {
-        Log.d("MainActivity","showMonstersAndCandiesOnMap()");
-        style.addImage(SYMBOL_IMAGE, BitmapFactory.decodeResource(
-                MainActivity.this.getResources(), R.drawable.pika));
 
-        for (MonsterCandy monsterCandy : monstersAndCandiesArraylist) {
-            symbolManager.create(new SymbolOptions()
-                    .withLatLng(new LatLng(monsterCandy.getLat(), monsterCandy.getLon()))
-                    .withIconImage(SYMBOL_IMAGE)
-                    .withIconSize(0.09f));
-        }
+    public void showMonsterCandyOnMap(MonsterCandy monsterCandy) {
+        /***
+         * @author Biagio Iorio
+         * Visualizza l'oggetto monsterCandy sulla mappa
+         */
+        Log.d("MainActivity","showMonsterCandyOnMap("+monsterCandy.getId()+")");
+        style.addImage(monsterCandy.getId(), monsterCandy.getImg());
+        symbolManager.create(new SymbolOptions()
+                .withLatLng(new LatLng(monsterCandy.getLat(), monsterCandy.getLon()))
+                .withIconImage(monsterCandy.getId())
+                .withIconSize(0.8f));
     }
 
 
