@@ -20,6 +20,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,6 +53,7 @@ import androidx.annotation.NonNull;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, Style.OnStyleLoaded, PermissionsListener {
 
     private String sessionId;
+    private RequestQueue queue;
 
     private MapView mapView;
     private MapboxMap mapboxMap;
@@ -77,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_main);
         Log.d("MainActivity", "OnCreate");
 
+        queue = Volley.newRequestQueue(this);
+
         setSessionId();
         // ATTENZIONE LA CHIAMATA DI RETE È ASINCRONA. Ci dobbiamo assicurare che sia stato già settato il session_id.
         Log.d("MainActivity", "session_id settato -> " + this.sessionId);
@@ -88,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         permissionsManager = new PermissionsManager(this);
         locationListeningCallback = new LocationListeningCallback(this);
+
+        getMonstersAndCandies();
 
     }
 
@@ -120,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
          * nelle SharedPreferences con il metodo saveSessionId(sessionId).
          */
 
-        RequestQueue queue = Volley.newRequestQueue(this);
+        //RequestQueue queue = Volley.newRequestQueue(this);
         String url = getString(R.string.base_url) + "register.php";
 
         // prepare the request
@@ -143,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("MainActivity", "Errore");
+                        Log.d("MainActivity", "sessionid-request Errore:"+error.getMessage());
                         // TODO: gestire l'errore
                     }
                 }
@@ -257,6 +263,83 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+
+    //================================================================================
+    // Monsters and candies
+    //================================================================================
+    private void getMonstersAndCandies() {
+        /**
+         * @author Biagio Iorio
+         * Fa la chiamata 'getMap' al server
+         */
+
+        //RequestQueue queue = Volley.newRequestQueue(this);
+        String url = getString(R.string.base_url) + "getmap.php";
+
+        final JSONObject jsonBody = new JSONObject();
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
+
+        try {
+            jsonBody.put("session_id", sharedPreferences.getString(SESSION_ID_KEY, ""));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.d("MainActivity","getMonstersAndCandies() - JSON: problema");
+        }
+        Log.d("MainActivity","getMonstersAndCandies() - JSON body: " + jsonBody.toString());
+
+        // prepare the request
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("MainActivity", "getMonstersAndCandies() - Response: " + response.toString());
+                        parseMonstersAndCandiesResponse(response);
+                    }
+                },
+                new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("MainActivity", "getMonstersAndCandies - Error: " + error.toString());
+                        // TODO: gestire l'errore
+                    }
+                }
+        );
+        // add it to the RequestQueue
+        queue.add(getRequest);
+    }
+
+    private void parseMonstersAndCandiesResponse(JSONObject response) {
+        JSONArray monstersAndCandiesArray = new JSONArray();
+        try {
+            monstersAndCandiesArray = response.getJSONArray("mapobjects");
+            //Log.d("MainActivity","parseMonstersAndCandiesResponse"+monstersAndCandies.getJSONObject(0));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        for(int i = 0; i < monstersAndCandiesArray.length(); i++) {
+            JSONObject jsonobject = null;
+            String id, type, size, name;
+            double lat, lon;
+            id = type = size = name = "";
+            lat = lon = 0.0;
+            try {
+                jsonobject = monstersAndCandiesArray.getJSONObject(i);
+                id = jsonobject.getString("id");
+                lat = jsonobject.getDouble("lat");
+                lon = jsonobject.getDouble("lon");
+                type = jsonobject.getString("type");
+                size = jsonobject.getString("size");
+                name = jsonobject.getString("name");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            Log.d("MainActivity",id+", "+lat+", "+lon+", "+type+", "+size+", "+name);
+
+        }
+
+    }
 
 
     //================================================================================
