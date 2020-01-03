@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Base64;
 import android.util.Log;
 
@@ -70,9 +71,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Location location;
 
     private ArrayList<MonsterCandy> monstersAndCandiesArraylist = new ArrayList<>();
+    private Handler handler;
+    private Runnable runnableCode;
 
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
+    private static final long UPDATE_MONSTERS_AND_CANDIES_DELAY = 120000;
 
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";       // Chiave del session_id
@@ -101,8 +105,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         permissionsManager = new PermissionsManager(this);
         locationListeningCallback = new LocationListeningCallback(this);
-
-        getMonstersAndCandies();
 
     }
 
@@ -204,6 +206,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         symbolManager.setIconAllowOverlap(true);
         symbolManager.setIconIgnorePlacement(true);
+
+        // Scarica i mostri/caramelle ogni tot secondi
+        // TODO: run in un thread separato?
+        handler = new Handler();
+        runnableCode = new Runnable() {
+            @Override
+            public void run() {
+                Log.d("MainActivity","Update monsters and candies...");
+                getMonstersAndCandies(); // Volley Request
+                handler.postDelayed(runnableCode, UPDATE_MONSTERS_AND_CANDIES_DELAY);
+            }
+        };
+        handler.post(runnableCode);
 
         /*if(!monstersAndCandiesArraylist.isEmpty()){
             showMonsterCandyOnMap();
@@ -310,9 +325,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d("MainActivity", "getMonstersAndCandies() - Response: " + response.toString());
+                        //Log.d("MainActivity", "getMonstersAndCandies() - Response: " + response.toString());
                         monstersAndCandiesArraylist.clear(); // Pulisco l'arraylist dei mostri/caramelle dai dati vecchi
+                        Log.d("MainActivity","monstersAndCandiesArraylist pulito.");
+                        symbolManager.deleteAll();  //Pulisco i markers
+                        Log.d("MainActivity","Markers deleted.");
                         parseMonstersAndCandiesResponse(response);  // carico i mostri/caramelle nell'arraylist
+                        Log.d("MainActivity","monstersAndCandiesArraylist aggiornato.");
                         for(MonsterCandy monsterCandy : monstersAndCandiesArraylist){
                             downloadImage(monsterCandy);
                         }
@@ -346,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             e.printStackTrace();
             Log.d("MainActivity","downloadImage() - JSON: problema");
         }
-        Log.d("MainActivity","downloadImage() - JSON body: " + jsonBody.toString());
+        //Log.d("MainActivity","downloadImage() - JSON body: " + jsonBody.toString());
 
         // prepare the request
         JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
@@ -354,9 +373,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d("MainActivity", "downloadImage() - Response: " + response.toString());
+                        Log.d("MainActivity", "downloadImage() - " + monsterCandy.getId());
                         String img_base64 = "";
-                        
+
                         try {
                             img_base64 = response.getString("img");
                         } catch (JSONException e) {
@@ -418,7 +437,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // Creo l'oggetto monsterCandy con gli attributi estratti e lo aggiungo all'ArrayList con tutti i mostri/caramelle
             MonsterCandy monsterCandy = new MonsterCandy(this, id, type, size, name, lat, lon);
             this.monstersAndCandiesArraylist.add(monsterCandy);
-            Log.d("MainActivity","MONSTER/CANDY added to list: " + monsterCandy.toString());
+            //Log.d("MainActivity","MONSTER/CANDY added to list: " + monsterCandy.toString());
         }
     }
 
