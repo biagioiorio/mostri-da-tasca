@@ -8,6 +8,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +27,7 @@ import org.json.JSONObject;
 
 import android.view.View;
 
+import com.example.mostridatasca.com.example.mostridatasca.models.MonsterCandy;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -34,6 +36,7 @@ import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
@@ -42,8 +45,12 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -58,17 +65,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapView mapView;
     private MapboxMap mapboxMap;
     private Style style;
+    private SymbolManager symbolManager;
+
     private PermissionsManager permissionsManager;
     private LocationComponent locationComponent;
     private LocationEngine locationEngine;
     private LocationListeningCallback locationListeningCallback;
     private Location location;
 
+    private ArrayList<MonsterCandy> monstersAndCandiesArraylist = new ArrayList<>();
+
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
 
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
-    public static final String SESSION_ID_KEY = "sessionId";        // Chiave del session_id
+    public static final String SESSION_ID_KEY = "sessionId";       // Chiave del session_id
+
+    public static final String SYMBOL_IMAGE = "pika";
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // serve per identificare i permessi in caso volessi gestirli
 
@@ -190,13 +203,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d("MainActivity","Style loaded");
         this.style = style;
         enableLocationComponent(); // Visualizza il pallino blu dell'utente
+
+        this.symbolManager = new SymbolManager(mapView, mapboxMap, style);
+
+        symbolManager.setIconAllowOverlap(true);
+        symbolManager.setIconIgnorePlacement(true);
+
+        if(!monstersAndCandiesArraylist.isEmpty()){
+            showMonstersAndCandiesOnMap();
+        }
     }
 
-    /***
-     * Serve per mostrare la posizione dell'utente sulla mappa
-     */
     private void enableLocationComponent() {
-
+        /***
+         * Serve per mostrare la posizione dell'utente sulla mappa
+         */
         if(PermissionsManager.areLocationPermissionsGranted(this)){
             Log.d("MainActivity","Permessi già ottenuti");
             // Permessi già ottenuti
@@ -216,11 +237,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    /**
-     * Inizializza il LocationEngine e i suoi parametri per ottenere aggiornamenti sulla posizione del device
-     * (es: ogni quanto aggiornare la posizione, accuratezza, ...)
-     */
     private void initLocationEngine() {
+        /**
+         * Inizializza il LocationEngine e i suoi parametri per ottenere aggiornamenti sulla posizione del device
+         * (es: ogni quanto aggiornare la posizione, accuratezza, ...)
+         */
         locationEngine = LocationEngineProvider.getBestLocationEngine(this);
 
         LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
@@ -279,6 +300,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final JSONObject jsonBody = new JSONObject();
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
 
+        // Preparo il body con il session_id
         try {
             jsonBody.put("session_id", sharedPreferences.getString(SESSION_ID_KEY, ""));
         } catch (JSONException e) {
@@ -294,7 +316,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.d("MainActivity", "getMonstersAndCandies() - Response: " + response.toString());
+                        monstersAndCandiesArraylist.clear(); // Pulisco l'arraylist dei mostri/caramelle dai dati vecchi
                         parseMonstersAndCandiesResponse(response);
+                        showMonstersAndCandiesOnMap();
                     }
                 },
                 new Response.ErrorListener() {
@@ -306,40 +330,61 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 }
         );
-        // add it to the RequestQueue
-        queue.add(getRequest);
+        queue.add(getRequest);  // aggiungo la richiesta alla coda
     }
 
     private void parseMonstersAndCandiesResponse(JSONObject response) {
+        /***
+         * Prende la risposta di getMonstersAndCandies() [getmap],
+         * crea un oggetto MonsterCandy per ogni mostro/caramella
+         * e lo aggiunge all'arraylist monstersAndCandiesArraylist
+         * dichiarato nella MainActivity
+         */
         JSONArray monstersAndCandiesArray = new JSONArray();
         try {
             monstersAndCandiesArray = response.getJSONArray("mapobjects");
-            //Log.d("MainActivity","parseMonstersAndCandiesResponse"+monstersAndCandies.getJSONObject(0));
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        for(int i = 0; i < monstersAndCandiesArray.length(); i++) {
-            JSONObject jsonobject = null;
+
+        for(int i = 0; i < monstersAndCandiesArray.length(); i++) {     // ciclo sui mostri/caramelle ricevuti nella risposta
             String id, type, size, name;
             double lat, lon;
             id = type = size = name = "";
             lat = lon = 0.0;
+
+            // Estraggo gli attributi da ogni JSONObject della risposta
             try {
-                jsonobject = monstersAndCandiesArray.getJSONObject(i);
-                id = jsonobject.getString("id");
-                lat = jsonobject.getDouble("lat");
-                lon = jsonobject.getDouble("lon");
-                type = jsonobject.getString("type");
-                size = jsonobject.getString("size");
-                name = jsonobject.getString("name");
+                id = monstersAndCandiesArray.getJSONObject(i).getString("id");
+                type = monstersAndCandiesArray.getJSONObject(i).getString("type");
+                size = monstersAndCandiesArray.getJSONObject(i).getString("size");
+                name = monstersAndCandiesArray.getJSONObject(i).getString("name");
+                lat = monstersAndCandiesArray.getJSONObject(i).getDouble("lat");
+                lon = monstersAndCandiesArray.getJSONObject(i).getDouble("lon");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Log.d("MainActivity",id+", "+lat+", "+lon+", "+type+", "+size+", "+name);
 
+            // Creo l'oggetto monsterCandy con gli attributi estratti e lo aggiungo all'ArrayList con tutti i mostri/caramelle
+            MonsterCandy monsterCandy = new MonsterCandy(id, type, size, name, lat, lon);
+            this.monstersAndCandiesArraylist.add(monsterCandy);
+            Log.d("MainActivity","MONSTER/CANDY added to list: " + monsterCandy.toString());
         }
-
     }
+
+    public void showMonstersAndCandiesOnMap() {
+        Log.d("MainActivity","showMonstersAndCandiesOnMap()");
+        style.addImage(SYMBOL_IMAGE, BitmapFactory.decodeResource(
+                MainActivity.this.getResources(), R.drawable.pika));
+
+        for (MonsterCandy monsterCandy : monstersAndCandiesArraylist) {
+            symbolManager.create(new SymbolOptions()
+                    .withLatLng(new LatLng(monsterCandy.getLat(), monsterCandy.getLon()))
+                    .withIconImage(SYMBOL_IMAGE)
+                    .withIconSize(0.09f));
+        }
+    }
+
 
 
     //================================================================================
