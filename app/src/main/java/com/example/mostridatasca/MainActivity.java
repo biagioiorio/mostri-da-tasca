@@ -83,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public static final String SYMBOL_IMAGE = "default_marker";
 
+    public static final String TAG = "Debug - MainActivity";
+
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // serve per identificare i permessi in caso volessi gestirli
 
     @Override
@@ -90,13 +92,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, "pk.eyJ1IjoibWF0dGVvYmV0dG8iLCJhIjoiY2szNGF1OGgwMDBhNjNucWRzY29oaTU3OCJ9.G066wR9mYwJUPmWcD_vrwQ");
         setContentView(R.layout.activity_main);
-        Log.d("MainActivity", "OnCreate");
+        Log.d(TAG, "OnCreate");
 
         queue = Volley.newRequestQueue(this);
 
         setSessionId();
         // ATTENZIONE LA CHIAMATA DI RETE È ASINCRONA. Ci dobbiamo assicurare che sia stato già settato il session_id.
-        Log.d("MainActivity", "session_id settato -> " + this.sessionId);
+        Log.d(TAG, "session_id settato -> " + this.sessionId);
         // TODO: settare uno username nel caso di un nuovo utente.
 
         mapView = findViewById(R.id.mapView);
@@ -125,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.sessionId = sharedPreferences.getString(SESSION_ID_KEY, "");
         // this.sessionId = "";  // DEBUG: decommentare per simulare un nuovo utente.
         if (this.sessionId.isEmpty()) { // Nuovo utente
-            Log.d("MainActivity", "SessionId non presente. Nuovo utente. Contatto il server...");
+            Log.d(TAG, "SessionId non presente. Nuovo utente. Contatto il server...");
             setSessionIdFromServer();
         }
     }
@@ -146,21 +148,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        // Log.d("MainActivity", "Response: " + response.toString());
+                        // Log.d(TAG, "Response: " + response.toString());
                         try {
                             sessionId = response.getString("session_id");
                             saveSessionId(sessionId);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        Log.d("MainActivity", "session_id (from server): " + sessionId);
+                        Log.d(TAG, "session_id (from server): " + sessionId);
                     }
                 },
                 new Response.ErrorListener() {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("MainActivity", "sessionid-request Errore:"+error.getMessage());
+                        Log.d(TAG, "sessionid-request Errore:"+error.getMessage());
                         // TODO: gestire l'errore
                     }
                 }
@@ -181,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         editor.putString(SESSION_ID_KEY, sessionId);
         editor.apply();
-        Log.d("MainActivity", "session_id salvato nelle sharedPreferences");
+        Log.d(TAG, "session_id salvato nelle sharedPreferences");
     }
 
 
@@ -190,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //================================================================================
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
-        Log.d("MainActivity","Map ready");
+        Log.d(TAG,"Map ready");
         this.mapboxMap = mapboxMap;
         mapboxMap.setStyle(Style.DARK, this);
     }
@@ -198,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onStyleLoaded(@NonNull Style style) {
         // la mappa è pronta, si possono modificare le sue proprietà
-        Log.d("MainActivity","Style loaded");
+        Log.d(TAG,"Style loaded");
         this.style = style;
         enableLocationComponent(); // Visualizza il pallino blu dell'utente
 
@@ -213,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         runnableCode = new Runnable() {
             @Override
             public void run() {
-                Log.d("MainActivity","Update monsters and candies...");
+                Log.d(TAG,"Update monsters and candies...");
                 getMonstersAndCandies(); // Volley Request
                 handler.postDelayed(runnableCode, UPDATE_MONSTERS_AND_CANDIES_DELAY);
             }
@@ -230,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
          * Serve per mostrare la posizione dell'utente sulla mappa
          */
         if(PermissionsManager.areLocationPermissionsGranted(this)){
-            Log.d("MainActivity","Permessi già ottenuti");
+            Log.d(TAG,"Permessi già ottenuti");
             // Permessi già ottenuti
 
             LocationComponent locationComponent = mapboxMap.getLocationComponent();
@@ -241,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             initLocationEngine();   // Inizializza il location engine
         } else {
-            Log.d("MainActivity","Permessi non ottenuti");
+            Log.d(TAG,"Permessi non ottenuti");
             // Chiedo i permessi
             permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(this);
@@ -285,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
          * e FALSE se non li ha dati.
          */
         if(granted){
-            Log.d("MainActivity","Permessi appena ottenuti");
+            Log.d(TAG,"Permessi appena ottenuti");
             enableLocationComponent();
         }
     }
@@ -315,9 +317,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             jsonBody.put("session_id", sharedPreferences.getString(SESSION_ID_KEY, ""));
         } catch (JSONException e) {
             e.printStackTrace();
-            Log.d("MainActivity","getMonstersAndCandies() - JSON: problema");
+            Log.d(TAG,"getMonstersAndCandies() - JSON: problema");
         }
-        Log.d("MainActivity","getMonstersAndCandies() - JSON body: " + jsonBody.toString());
+        Log.d(TAG,"getMonstersAndCandies() - JSON body: " + jsonBody.toString());
 
         // prepare the request
         JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
@@ -325,13 +327,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        //Log.d("MainActivity", "getMonstersAndCandies() - Response: " + response.toString());
+                        //Log.d(TAG, "getMonstersAndCandies() - Response: " + response.toString());
                         monstersAndCandiesArraylist.clear(); // Pulisco l'arraylist dei mostri/caramelle dai dati vecchi
-                        Log.d("MainActivity","monstersAndCandiesArraylist pulito.");
+                        Log.d(TAG,"monstersAndCandiesArraylist pulito.");
                         symbolManager.deleteAll();  //Pulisco i markers
-                        Log.d("MainActivity","Markers deleted.");
+                        Log.d(TAG,"Markers deleted.");
                         parseMonstersAndCandiesResponse(response);  // carico i mostri/caramelle nell'arraylist
-                        Log.d("MainActivity","monstersAndCandiesArraylist aggiornato.");
+                        Log.d(TAG,"monstersAndCandiesArraylist aggiornato.");
                         for(MonsterCandy monsterCandy : monstersAndCandiesArraylist){
                             downloadImage(monsterCandy);
                         }
@@ -340,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("MainActivity", "getMonstersAndCandies - Error: " + error.toString());
+                        Log.d(TAG, "getMonstersAndCandies - Error: " + error.toString());
                         // TODO: gestire l'errore
                     }
                 }
@@ -363,9 +365,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             jsonBody.put("target_id", targetId);
         } catch (JSONException e) {
             e.printStackTrace();
-            Log.d("MainActivity","downloadImage() - JSON: problema");
+            Log.d(TAG,"downloadImage() - JSON: problema");
         }
-        //Log.d("MainActivity","downloadImage() - JSON body: " + jsonBody.toString());
+        //Log.d(TAG,"downloadImage() - JSON body: " + jsonBody.toString());
 
         // prepare the request
         JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
@@ -373,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d("MainActivity", "downloadImage() - " + monsterCandy.getId());
+                        Log.d(TAG, "downloadImage() - " + monsterCandy.getId());
                         String img_base64 = "";
 
                         try {
@@ -393,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("MainActivity", "downloadImage - Error: " + error.toString());
+                        Log.d(TAG, "downloadImage - Error: " + error.toString());
                         // TODO: gestire l'errore
                     }
                 }
@@ -437,7 +439,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // Creo l'oggetto monsterCandy con gli attributi estratti e lo aggiungo all'ArrayList con tutti i mostri/caramelle
             MonsterCandy monsterCandy = new MonsterCandy(this, id, type, size, name, lat, lon);
             this.monstersAndCandiesArraylist.add(monsterCandy);
-            //Log.d("MainActivity","MONSTER/CANDY added to list: " + monsterCandy.toString());
+            //Log.d(TAG,"MONSTER/CANDY added to list: " + monsterCandy.toString());
         }
     }
 
@@ -447,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
          * @author Biagio Iorio
          * Visualizza l'oggetto monsterCandy sulla mappa
          */
-        Log.d("MainActivity","showMonsterCandyOnMap("+monsterCandy.getId()+")");
+        Log.d(TAG,"showMonsterCandyOnMap("+monsterCandy.getId()+")");
         style.addImage(monsterCandy.getId(), monsterCandy.getImg());
         symbolManager.create(new SymbolOptions()
                 .withLatLng(new LatLng(monsterCandy.getLat(), monsterCandy.getLon()))
@@ -541,7 +543,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             /***
              * onSuccess viene chiamato ogni volta che cambia la posizione dell'utente
              */
-            Log.d("MainActivity","LocationListeningCallback: Location changed.");
+            Log.d(TAG,"LocationListeningCallback: Location changed.");
             mainActivity.location = result.getLastLocation();   // Aggiorno la variabile location della mainActivity con la posizione attuale
             if (mainActivity.mapboxMap != null && result.getLastLocation() != null) {
                 mainActivity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
@@ -551,7 +553,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         @Override
         public void onFailure(@NonNull Exception exception) {
             // The LocationEngineCallback interface's method which fires when the device's location can not be captured
-            Log.d("MainActivity","LocationListeningCallback: Location can not be captured.");
+            Log.d(TAG,"LocationListeningCallback: Location can not be captured.");
         }
     }
 
