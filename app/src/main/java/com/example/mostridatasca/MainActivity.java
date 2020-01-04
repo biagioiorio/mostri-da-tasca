@@ -43,6 +43,8 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.plugins.annotation.OnSymbolClickListener;
+import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 
@@ -58,11 +60,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private String sessionId;
     private RequestQueue queue;
+    private Integer numberOfRequests;
 
     private MapView mapView;
     private MapboxMap mapboxMap;
     private Style style;
     private SymbolManager symbolManager;
+    private OnSymbolClickListener onSymbolClickListener;
 
     private PermissionsManager permissionsManager;
     private LocationComponent locationComponent;
@@ -87,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // serve per identificare i permessi in caso volessi gestirli
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d(TAG, "OnCreate");
 
         queue = Volley.newRequestQueue(this);
+        numberOfRequests = 0;
 
         setSessionId();
         // ATTENZIONE LA CHIAMATA DI RETE È ASINCRONA. Ci dobbiamo assicurare che sia stato già settato il session_id.
@@ -148,6 +154,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onResponse(JSONObject response) {
+                        numberOfRequests--;
+                        Log.d(TAG,"setSessionIdFromServer() - Response get. numberOfRequests: "+numberOfRequests);
                         // Log.d(TAG, "Response: " + response.toString());
                         try {
                             sessionId = response.getString("session_id");
@@ -169,6 +177,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         );
         // add it to the RequestQueue
         queue.add(getRequest);
+        numberOfRequests++;
+        Log.d(TAG,"setSessionIdFromServer() - Request added. numberOfRequests: "+numberOfRequests);
     }
 
     public void saveSessionId(String sessionId) {
@@ -209,6 +219,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         symbolManager.setIconAllowOverlap(true);
         symbolManager.setIconIgnorePlacement(true);
 
+        /*  Definisco onSymbolClickListener che verra' poi aggiunto al symbolManager nel metodo
+            addSymbolClickListener() dopo che i simboli sono stati scaricati e mostrati sulla mappa */
+        onSymbolClickListener = new OnSymbolClickListener() {
+            @Override
+            public void onAnnotationClick(Symbol symbol) {
+                Log.d(TAG,"Simbolo ["+symbol.getIconImage()+"] toccato");
+            }
+        };
+
         // Scarica i mostri/caramelle ogni tot secondi
         // TODO: run in un thread separato?
         handler = new Handler();
@@ -221,6 +240,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
         handler.post(runnableCode);
+
+
 
         /*if(!monstersAndCandiesArraylist.isEmpty()){
             showMonsterCandyOnMap();
@@ -327,6 +348,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onResponse(JSONObject response) {
+                        numberOfRequests--;
+                        Log.d(TAG, "getMonstersAndCandies - Response get: "+numberOfRequests);
                         //Log.d(TAG, "getMonstersAndCandies() - Response: " + response.toString());
                         monstersAndCandiesArraylist.clear(); // Pulisco l'arraylist dei mostri/caramelle dai dati vecchi
                         Log.d(TAG,"monstersAndCandiesArraylist pulito.");
@@ -348,6 +371,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
         );
         queue.add(getRequest);  // aggiungo la richiesta alla coda
+        numberOfRequests++;
+        Log.d(TAG, "getMonstersAndCandies - Request added. numberOfRequests: "+numberOfRequests);
     }
 
 
@@ -375,6 +400,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onResponse(JSONObject response) {
+                        numberOfRequests--;
+                        Log.d(TAG, "downloadImage - Response get. numberOfRequests: " + numberOfRequests);
                         Log.d(TAG, "downloadImage() - " + monsterCandy.getId());
                         String img_base64 = "";
 
@@ -389,6 +416,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         monsterCandy.setImg(img_bitmap);    // setto la proprietà img dell'oggetto monsterCandy con l'immagine appena scaricata
                         showMonsterCandyOnMap(monsterCandy);  // visualizzo l'oggetto monsterCandy sulla mappa
+
+                        if(numberOfRequests==0) addSymbolClickListener();
                     }
                 },
                 new Response.ErrorListener() {
@@ -401,7 +430,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
         );
         queue.add(getRequest);  // aggiungo la richiesta alla coda
+        numberOfRequests++;
+        Log.d(TAG, "downloadImage - Request added. numberOfRequests: "+numberOfRequests);
     }
+
 
     private void parseMonstersAndCandiesResponse(JSONObject response) {
         /***
@@ -455,6 +487,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .withLatLng(new LatLng(monsterCandy.getLat(), monsterCandy.getLon()))
                 .withIconImage(monsterCandy.getId())
                 .withIconSize(0.8f));
+    }
+
+
+    private void addSymbolClickListener() {
+        /***
+         * Aggiunge il symbolClickListener definito nell'onStyleLoaded()
+         * a tutti i simboli sulla mappa.
+         */
+        symbolManager.removeClickListener(onSymbolClickListener);
+        symbolManager.addClickListener(onSymbolClickListener);
+        Log.d(TAG,"addSymbolClickListener() - Symbol click listener aggiunto.");
     }
 
 
