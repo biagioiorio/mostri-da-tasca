@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.view.View;
+import android.widget.Button;
 
 import com.example.mostridatasca.com.example.mostridatasca.models.MonsterCandy;
 import com.mapbox.android.core.location.LocationEngine;
@@ -92,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, "pk.eyJ1IjoibWF0dGVvYmV0dG8iLCJhIjoiY2szNGF1OGgwMDBhNjNucWRzY29oaTU3OCJ9.G066wR9mYwJUPmWcD_vrwQ");
         setContentView(R.layout.activity_main);
-        Log.d(TAG, "OnCreate");
+        Log.d(TAG, " OnCreate ");
 
         queue = Volley.newRequestQueue(this);
 
@@ -107,6 +108,40 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         permissionsManager = new PermissionsManager(this);
         locationListeningCallback = new LocationListeningCallback(this);
+
+
+        //================================================================================
+        // Intent
+        //================================================================================
+
+        Button buttonProfilo = (Button) findViewById(R.id.button_profilo);
+        Button buttonElenco = (Button) findViewById(R.id.button_elenco);
+
+        buttonProfilo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /**
+                 * @author Betto
+                 * manda alla pagina profilo
+                 */
+                Log.d(TAG, " buttonProfilo premuto ");
+                Intent intent = new Intent(getApplicationContext(), Profilo.class);
+                startActivity(intent);
+            }
+        });
+
+        buttonElenco.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /**
+                 * @author Betto
+                 * manda alla pagina top players
+                 */
+                Log.d(TAG, " buttonElenco premuto ");
+                Intent intent = new Intent(getApplicationContext(), TopPlayers.class);
+                startActivity(intent);
+            }
+        });
 
     }
 
@@ -458,23 +493,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-
-    //================================================================================
-    // Intent
-    //================================================================================
-    public void onButtonProfiloClick(View v) {
-        Log.d("Pulsante: ", "Profilo");
-        Intent intent = new Intent(getApplicationContext(), Profilo.class);
-        startActivity(intent);
-    }
-
-    public void onButtonElencoClick(View v) {
-        Log.d("Pulsante: ", "Elenco");
-        Intent intent = new Intent(getApplicationContext(), TopPlayers.class);
-        startActivity(intent);
-    }
-
-
     //================================================================================
     // Ciclo di vita - metodi
     //================================================================================
@@ -522,7 +540,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
-
 
 
     //================================================================================

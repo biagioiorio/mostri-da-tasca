@@ -28,8 +28,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 public class ModificaProfilo extends AppCompatActivity {
@@ -37,6 +35,8 @@ public class ModificaProfilo extends AppCompatActivity {
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";        // Chiave del session_id
     private static final int PICK_IMAGE = 100;
+    public static final String TAG = "Debug - ModificaProfilo";
+
     Uri imageUri;
     String immagine;
 
@@ -52,9 +52,9 @@ public class ModificaProfilo extends AppCompatActivity {
         //================================================================================
         // Intent
         //================================================================================
-        Button buttonImmagine = (Button) findViewById(R.id.button_immagine);
-        Button buttonConfermaModifiche = (Button) findViewById(R.id.button_conferma_modifiche);
-        Button buttonAnnullaModifiche = (Button) findViewById(R.id.button_annulla_modifiche);
+        Button buttonImmagine = (Button) findViewById(R.id.button_cambiaImmagine);
+        Button buttonConfermaModifiche = (Button) findViewById(R.id.button_confermaModifiche);
+        Button buttonAnnullaModifiche = (Button) findViewById(R.id.button_annullaModifiche);
 
         buttonImmagine.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +63,7 @@ public class ModificaProfilo extends AppCompatActivity {
                  * @author Betto
                  * apre la galleria
                  */
+                Log.d(TAG, " buttonImmagine premuto");
                 openGallery();
             }
         });
@@ -73,11 +74,12 @@ public class ModificaProfilo extends AppCompatActivity {
                 /**
                  * @author Betto
                  */
-                TextView nuovoUsernameTextView = (TextView)findViewById(R.id.nuovoUsername);
+                Log.d(TAG, " buttonConfermaModifiche premuto");
+                TextView nuovoUsernameTextView = (TextView)findViewById(R.id.textView_nuovoUsername);
                 String newUsername = nuovoUsernameTextView.getText().toString();
 
                 if (newUsername.length() > 15){
-                    Log.d(" Debug - Modifica Profilo: ", " Bottone conferma modifiche > 15 --> " + newUsername);
+                    Log.d(TAG, " Bottone conferma modifiche > 15 --> " + newUsername);
                     Toast.makeText(getApplicationContext(),"Username oltre 15 lettere",Toast.LENGTH_SHORT).show();
                 }else{
                     if(newUsername.isEmpty() && imageUri == null){
@@ -99,7 +101,7 @@ public class ModificaProfilo extends AppCompatActivity {
                             e.printStackTrace();
                             Log.d(" Debug - Modifica Profilo: ","problema");
                         }
-                        Log.d(" Debug - Modifica Profilo: ","jsonbody: " + jsonBody.toString());
+                        Log.d(TAG,"jsonbody: " + jsonBody.toString());
 
 
                         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
@@ -113,7 +115,7 @@ public class ModificaProfilo extends AppCompatActivity {
                                         Intent intent = new Intent(getApplicationContext(), Profilo.class);
                                         startActivity(intent);
                                         Toast.makeText(getApplicationContext(),"Dati aggiornati correttamente",Toast.LENGTH_SHORT).show();
-                                        Log.d(" Debug - Modifica Profilo: ", "buttonConfermaModifiche --> onResponse");
+                                        Log.d(TAG, "buttonConfermaModifiche --> onResponse");
 
                                     }
                                 },
@@ -122,7 +124,7 @@ public class ModificaProfilo extends AppCompatActivity {
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
                                         Toast.makeText(getApplicationContext(),"Dati non aggiornati",Toast.LENGTH_SHORT).show();
-                                        Log.d(" Debug - Modifica Profilo: ", "buttonConfermaModifiche --> onErrorResponse");
+                                        Log.d(TAG, "buttonConfermaModifiche --> onErrorResponse");
                                     }
                                 }
                         );
@@ -140,7 +142,7 @@ public class ModificaProfilo extends AppCompatActivity {
                  * @author Betto
                  * ritorna alla pagina profilo
                  */
-                Log.d("Debug - Modifica Profilo: ", " buttonAnnullaModifiche ");
+                Log.d(TAG, " buttonAnnullaModifiche premuto");
                 Intent intent = new Intent(getApplicationContext(), Profilo.class);
                 startActivity(intent);
             }
@@ -171,8 +173,8 @@ public class ModificaProfilo extends AppCompatActivity {
         if(resultCode == RESULT_OK && requestCode == PICK_IMAGE){
 
             imageUri = data.getData();
-            Log.d(" Debug - Modifica Profilo: "," imageUri --> " + imageUri.toString());
-            ImageView imageView = (ImageView) findViewById(R.id.imageView);
+            Log.d(TAG," imageUri --> " + imageUri.toString());
+            ImageView imageView = (ImageView) findViewById(R.id.imageView_nuovaFotoProfilo);
             /*
             IN ALTERNATIVA DIRETTAMENRE DA URI:
             imageView.setImageURI(imageUri);
@@ -185,7 +187,7 @@ public class ModificaProfilo extends AppCompatActivity {
                 e.printStackTrace();
             }
             immagine = encodeImage(bitmap);
-            Log.d(" Debug - Modifica Profilo: "," Immagine convertita in Base64 --> " + encodeImage(bitmap));
+            Log.d(TAG," Immagine convertita in Base64 --> " + encodeImage(bitmap));
         }
     }
 

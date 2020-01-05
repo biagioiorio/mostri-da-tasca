@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,25 +21,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-
 public class TopPlayers extends AppCompatActivity {
-
 
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";       // Chiave del session_id
+    public static final String TAG = "Debug - TopPlayers";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        /**
+         * @author Betto Matteo
+         */
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top_players);
 
         getTopPlayers();
-
-        Context con = this;
     }
-
-
 
 
     private void getTopPlayers() {
@@ -48,7 +45,6 @@ public class TopPlayers extends AppCompatActivity {
          * @author Betto Matteo
          * Fa la chiamata 'ranking' al server
          */
-
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = getString(R.string.base_url) + "ranking.php";
 
@@ -60,9 +56,9 @@ public class TopPlayers extends AppCompatActivity {
             jsonBody.put("session_id", sharedPreferences.getString(SESSION_ID_KEY, ""));
         } catch (JSONException e) {
             e.printStackTrace();
-            Log.d(" Volley_TopPlayer "," ERRORE --> JsonBody ");
+            Log.d(TAG," JsonBody --> ERRORE ");
         }
-        Log.d(" Volley_TopPlayer "," JsonBody: " + jsonBody.toString());
+        Log.d(TAG," JsonBody: " + jsonBody.toString());
 
         // prepare the request
         JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
@@ -70,7 +66,7 @@ public class TopPlayers extends AppCompatActivity {
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d(" Volley_TopPlayer ", " getTopPlayers --> Response: " + response.toString());
+                        Log.d(TAG, " getTopPlayers --> Response: " + response.toString());
                         //parso nell'arraylist topPlayers
                         JSONArray topPlayers = new JSONArray();
                         try {
@@ -98,8 +94,8 @@ public class TopPlayers extends AppCompatActivity {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d(" Volley_TopPlayer ", " ERRORE ---> Volley OnErrorResponse " + error.toString());
-                        TextView tp = (TextView) findViewById(R.id.textView2);
+                        Log.d(TAG, " getTopPlayers --> ERRORE " + error.toString());
+                        TextView tp = (TextView) findViewById(R.id.textView_TopPlayers);
                         tp.setText("Connsessione assente riprovare più tardi");
                     }
                 }

@@ -2,7 +2,6 @@ package com.example.mostridatasca;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -11,6 +10,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,15 +28,23 @@ public class Profilo extends AppCompatActivity {
 
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";        // Chiave del session_id
+    public static final String TAG = "Debug - Profilo";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        /**
+         * @author Betto Matteo
+         */
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profilo);
 
         setContenutoUtente();
     }
 
+
+    //================================================================================
+    // Metodi
+    //================================================================================
     public void setContenutoUtente(){
         /**
          * @author Betto
@@ -66,7 +74,7 @@ public class Profilo extends AppCompatActivity {
                             byte[] decodedString = Base64.decode(response.getString("img"), Base64.DEFAULT);
                             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
-                            ImageView imgUser = (ImageView) findViewById(R.id.imgUser);
+                            ImageView imgUser = (ImageView) findViewById(R.id.imageView_fotoProfilo);
                             imgUser.setImageBitmap(decodedByte);
 
                             TextView textUsername = (TextView) findViewById(R.id.textUsername);
@@ -99,26 +107,40 @@ public class Profilo extends AppCompatActivity {
         );
         queue.add(getRequest);
 
-    }
 
-    public void onButtonModificaClick(View v) {
-        /**
-         * @author Betto
-         * porta all'Activity ModificaProfilo
-         */
-        Log.d(" Pulsante: ", " Modifica Profilo ");
-        Intent intent = new Intent(getApplicationContext(), ModificaProfilo.class);
-        startActivity(intent);
-    }
+        //================================================================================
+        // Intent
+        //================================================================================
+        Button buttonMappa = (Button) findViewById(R.id.button_mappa);
+        Button buttonModificaProfilo = (Button) findViewById(R.id.button_modificaProfilo);
 
-    public void onButtonIndietroClick(View v) {
-        /**
-         * @author Betto
-         * porta alla MainActivity
-         */
-        Log.d(" Pulsante: ", " Modifica Profilo ");
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(intent);
+        buttonMappa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /**
+                 * @author Betto
+                 * ritorna alla mappa
+                 */
+                Log.d(TAG, " buttonMappa premuto ");
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        buttonModificaProfilo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /**
+                 * @author Betto
+                 * ritorna alla pagina profilo
+                 */
+                Log.d(TAG, " buttonAnnullaModifiche ");
+                Intent intent = new Intent(getApplicationContext(), ModificaProfilo.class);
+                startActivity(intent);
+                //TODO gestire il caso in cui internet sia assente, mettere un FLAG nell'onErrorResponse
+            }
+        });
+
     }
 
 }

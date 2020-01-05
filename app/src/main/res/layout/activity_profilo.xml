@@ -7,7 +7,7 @@
     tools:context=".Profilo">
 
     <ImageView
-        android:id="@+id/imgUser"
+        android:id="@+id/imageView_fotoProfilo"
         android:layout_width="203dp"
         android:layout_height="254dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -50,10 +50,9 @@
         app:layout_constraintVertical_bias="0.71000004" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/button_modificaProfilo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onButtonModificaClick"
         android:text="Modifica"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -63,10 +62,9 @@
         app:layout_constraintVertical_bias="0.87" />
 
     <Button
-        android:id="@+id/button_indietro"
+        android:id="@+id/button_mappa"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onButtonIndietroClick"
         android:text="Mappa"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

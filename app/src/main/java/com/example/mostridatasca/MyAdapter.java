@@ -11,6 +11,9 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
     private LayoutInflater mInflater;
 
     public MyAdapter(Context context) {
+        /**
+         * @author Betto Matteo
+         */
         this.mInflater = LayoutInflater.from(context);
     }
 
