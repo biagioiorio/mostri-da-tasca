@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
     private static final long UPDATE_MONSTERS_AND_CANDIES_DELAY = 120000;
+    private static final double FIGHT_EAT_DISTANCE = 50.0;
 
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";       // Chiave del session_id
@@ -230,7 +231,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         LatLng userPosition = new LatLng(location.getLatitude(),location.getLongitude());
                         LatLng symbolPosition = monsterCandy.getPosition();
                         double symbolDistance = userPosition.distanceTo(symbolPosition);
-                        Log.d(TAG,"DISTANZA: "+symbolDistance);
+                        Boolean isNear = false;
+                        Log.d(TAG,"symbolDistance: "+symbolDistance);
+                        if(symbolDistance <= FIGHT_EAT_DISTANCE) {
+                            Log.d(TAG, "simbolo affrontabile/mangiabile");
+                            isNear = true;
+                        }
 
                         Intent intent = new Intent(getApplicationContext(), FightEat.class);
                         intent.putExtra("id", monsterCandy.getId());
@@ -238,6 +244,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         intent.putExtra("name", monsterCandy.getName());
                         intent.putExtra("img", monsterCandy.getImg());
                         intent.putExtra("size", monsterCandy.getSize());
+                        intent.putExtra("isNear", isNear);
+                        intent.putExtra("distance", symbolDistance);
                         startActivity(intent);
                     }
                 }

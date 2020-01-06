@@ -6,12 +6,15 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.Image;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class FightEat extends AppCompatActivity {
+
+    private static final String TAG = "Debug - FightEat";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +49,19 @@ public class FightEat extends AppCompatActivity {
             });
 
             Button azione = (Button)findViewById(R.id.button_azione);
+            azione.setEnabled(false);
+
+            // abilita il pulsante affronta/mangia se il simbolo è vicino all'utente
+            boolean isNear = intent.getBooleanExtra("isNear", false);
+            Log.d(TAG,"isNear: " + isNear);
+            if (isNear) azione.setEnabled(true);
+
             if (intent.getStringExtra("type").equals("MO")) {
                 azione.setText("AFFRONTA");
             }else{
                 azione.setText("MANGIA");
             }
+
             azione.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
