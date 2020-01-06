@@ -58,6 +58,21 @@ import androidx.annotation.NonNull;
 //TODO: Aggiungere pulsante per centrare la camera sulla posizione dell'utente
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, Style.OnStyleLoaded, PermissionsListener {
 
+    private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
+    private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
+    private static final long UPDATE_MONSTERS_AND_CANDIES_DELAY = 120000;
+    private static final double FIGHT_EAT_DISTANCE = 50.0;
+
+    public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
+    public static final String SESSION_ID_KEY = "sessionId";       // Chiave del session_id
+
+    public static final String SYMBOL_IMAGE = "default_marker";
+
+    public static final String TAG = "Debug - MainActivity";
+
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // serve per identificare i permessi in caso volessi gestirli
+
+    private SharedPreferences sharedPreferences;
     private String sessionId;
     private String testSessionId;
     private RequestQueue queue;
@@ -79,20 +94,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Handler handler;
     private Runnable runnableCode;
 
-    private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
-    private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
-    private static final long UPDATE_MONSTERS_AND_CANDIES_DELAY = 120000;
-    private static final double FIGHT_EAT_DISTANCE = 50.0;
-
-    public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
-    public static final String SESSION_ID_KEY = "sessionId";       // Chiave del session_id
-
-    public static final String SYMBOL_IMAGE = "default_marker";
-
-    public static final String TAG = "Debug - MainActivity";
-
-    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // serve per identificare i permessi in caso volessi gestirli
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Mapbox.getInstance(this, "pk.eyJ1IjoibWF0dGVvYmV0dG8iLCJhIjoiY2szNGF1OGgwMDBhNjNucWRzY29oaTU3OCJ9.G066wR9mYwJUPmWcD_vrwQ");
         setContentView(R.layout.activity_main);
         Log.d(TAG, "OnCreate");
+
+        sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
 
         queue = Volley.newRequestQueue(this);
         numberOfRequests = 0;
@@ -131,7 +134,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
          * al server per settare il session_id.
          */
 
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
         this.sessionId = sharedPreferences.getString(SESSION_ID_KEY, "");
         this.testSessionId = getResources().getString(R.string.test_session_id);
         // this.sessionId = "";  // DEBUG: decommentare per simulare un nuovo utente.
@@ -196,7 +198,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
          * se non è già presente, nelle SharedPreferences
          */
 
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         editor.putString(SESSION_ID_KEY, sessionId);
@@ -362,7 +363,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         String url = getString(R.string.base_url) + "getmap.php";
 
         final JSONObject jsonBody = new JSONObject();
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
 
         // Preparo il body con il session_id
         try {
@@ -410,8 +410,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void downloadImage(final MonsterCandy monsterCandy) {
         String targetId = monsterCandy.getId();
         String url = getString(R.string.base_url) + "getimage.php";
-
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
         String sessionId = sharedPreferences.getString(SESSION_ID_KEY, "");
 
         // Preparo il body con il session_id
