@@ -2,4 +2,5 @@
     <string name="app_name">Mostri da tasca</string>
     <string name="base_url">https://ewserver.di.unimi.it/mobicomp/mostri/</string>
     <string name="location_token">pk.eyJ1IjoibWF0dGVvYmV0dG8iLCJhIjoiY2szNGF1OGgwMDBhNjNucWRzY29oaTU3OCJ9.G066wR9mYwJUPmWcD_vrwQ</string>
+    <string name="test_session_id">7Dvnd4aSVpu0XEHF</string>
 </resources>

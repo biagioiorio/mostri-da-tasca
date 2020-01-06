@@ -59,6 +59,7 @@ import androidx.annotation.NonNull;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, Style.OnStyleLoaded, PermissionsListener {
 
     private String sessionId;
+    private String testSessionId;
     private RequestQueue queue;
     private Integer numberOfRequests;
 
@@ -131,11 +132,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
         this.sessionId = sharedPreferences.getString(SESSION_ID_KEY, "");
+        this.testSessionId = getResources().getString(R.string.test_session_id);
         // this.sessionId = "";  // DEBUG: decommentare per simulare un nuovo utente.
-        if (this.sessionId.isEmpty()) { // Nuovo utente
-            Log.d(TAG, "SessionId non presente. Nuovo utente. Contatto il server...");
-            setSessionIdFromServer();
+        if (!this.testSessionId.isEmpty()){
+            saveSessionId(this.testSessionId);
+        }else{
+            if (this.sessionId.isEmpty()) { // Nuovo utente
+                Log.d(TAG, "SessionId non presente. Nuovo utente. Contatto il server...");
+                setSessionIdFromServer();
+            }
         }
+
     }
 
     private void setSessionIdFromServer() {
