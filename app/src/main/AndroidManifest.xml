@@ -13,7 +13,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ModificaProfilo"></activity>
+        <activity android:name=".Esito"></activity>
+        <activity android:name=".FightEat" />
+        <activity android:name=".ModificaProfilo" />
         <activity android:name=".TopPlayers" />
         <activity android:name=".Profilo" />
         <activity android:name=".MainActivity">

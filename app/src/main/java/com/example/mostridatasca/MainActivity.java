@@ -225,6 +225,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onAnnotationClick(Symbol symbol) {
                 Log.d(TAG,"Simbolo ["+symbol.getIconImage()+"] toccato");
+                for(MonsterCandy monsterCandy : monstersAndCandiesArraylist){
+                    if(monsterCandy.getId() == symbol.getIconImage()){
+                        Intent intent = new Intent(getApplicationContext(), FightEat.class);
+                        intent.putExtra("id", monsterCandy.getId());
+                        intent.putExtra("type", monsterCandy.getType());
+                        intent.putExtra("name", monsterCandy.getName());
+                        intent.putExtra("img", monsterCandy.getImg());
+                        intent.putExtra("size", monsterCandy.getSize());
+                        startActivity(intent);
+                    }
+                }
             }
         };
 
