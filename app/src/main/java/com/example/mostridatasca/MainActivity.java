@@ -227,6 +227,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.d(TAG,"Simbolo ["+symbol.getIconImage()+"] toccato");
                 for(MonsterCandy monsterCandy : monstersAndCandiesArraylist){
                     if(monsterCandy.getId() == symbol.getIconImage()){
+                        LatLng userPosition = new LatLng(location.getLatitude(),location.getLongitude());
+                        LatLng symbolPosition = monsterCandy.getPosition();
+                        double symbolDistance = userPosition.distanceTo(symbolPosition);
+                        Log.d(TAG,"DISTANZA: "+symbolDistance);
+
                         Intent intent = new Intent(getApplicationContext(), FightEat.class);
                         intent.putExtra("id", monsterCandy.getId());
                         intent.putExtra("type", monsterCandy.getType());
