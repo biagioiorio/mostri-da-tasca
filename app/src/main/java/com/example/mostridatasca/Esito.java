@@ -29,6 +29,8 @@ import static com.example.mostridatasca.Profilo.SESSION_ID_KEY;
 
 public class Esito extends AppCompatActivity {
 
+    public static final String TAG = "Debug - Esito";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +44,7 @@ public class Esito extends AppCompatActivity {
 
             try {
                 jsonBody.put("session_id", sharedPreferences.getString(SESSION_ID_KEY, ""));
-                jsonBody.put("target_id", sharedPreferences.getString(intent.getStringExtra("id"), ""));
+                jsonBody.put("target_id", intent.getStringExtra("id"));
             } catch (JSONException e) {
                 e.printStackTrace();
                 Log.d("JSON", "problema");
@@ -73,9 +75,11 @@ public class Esito extends AppCompatActivity {
 
                                 TextView textXp = (TextView) findViewById(R.id.textXp);
                                 textXp.setText("XP: " + response.getString("xp"));
+                                Log.d(TAG, "XP: " + response.getString("xp"));
 
                                 TextView textPv = (TextView) findViewById(R.id.textPv);
                                 textPv.setText("LP: " + response.getString("lp"));
+                                Log.d(TAG, "LP: " + response.getString("lp"));
 
 
                             } catch (JSONException e) {
