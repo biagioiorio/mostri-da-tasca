@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.view.View;
+import android.widget.Button;
 
 import com.example.mostridatasca.com.example.mostridatasca.models.MonsterCandy;
 import com.mapbox.android.core.location.LocationEngine;
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public static final String SYMBOL_IMAGE = "default_marker";
 
-    public static final String TAG = "Debug - MainActivity";
+    public static final String TAG = " Debug - MainActivity ";
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // serve per identificare i permessi in caso volessi gestirli
 
@@ -118,6 +119,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         permissionsManager = new PermissionsManager(this);
         locationListeningCallback = new LocationListeningCallback(this);
+
+        //================================================================================
+        // Intent
+        //================================================================================
+        Button pulsanteProfilo = (Button)findViewById(R.id.button_profilo);
+        Button pulsanteElenco = (Button)findViewById(R.id.button_elenco);
+
+        pulsanteProfilo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, " Pulsante Profilo premuto ");
+                Intent intent = new Intent(getApplicationContext(), Profilo.class);
+                startActivity(intent);
+            }
+        });
+
+        pulsanteElenco.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "Elenco");
+                Intent intent = new Intent(getApplicationContext(), TopPlayers.class);
+                startActivity(intent);
+            }
+        });
 
     }
 
@@ -527,23 +552,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         symbolManager.removeClickListener(onSymbolClickListener);
         symbolManager.addClickListener(onSymbolClickListener);
         Log.d(TAG,"addSymbolClickListener() - Symbol click listener aggiunto.");
-    }
-
-
-
-    //================================================================================
-    // Intent
-    //================================================================================
-    public void onButtonProfiloClick(View v) {
-        Log.d("Pulsante: ", "Profilo");
-        Intent intent = new Intent(getApplicationContext(), Profilo.class);
-        startActivity(intent);
-    }
-
-    public void onButtonElencoClick(View v) {
-        Log.d("Pulsante: ", "Elenco");
-        Intent intent = new Intent(getApplicationContext(), TopPlayers.class);
-        startActivity(intent);
     }
 
 

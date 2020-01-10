@@ -29,7 +29,7 @@ import static com.example.mostridatasca.Profilo.SESSION_ID_KEY;
 
 public class Esito extends AppCompatActivity {
 
-    public static final String TAG = "Debug - Esito";
+    public static final String TAG = " Debug - Esito ";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

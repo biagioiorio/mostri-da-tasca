@@ -38,6 +38,9 @@ public class FightEat extends AppCompatActivity {
                 break;
             }
 
+            //================================================================================
+            // Intent
+            //================================================================================
             Button mappa = (Button)findViewById(R.id.button_ritirata);
             mappa.setText("MAPPA");
             mappa.setOnClickListener(new View.OnClickListener() {

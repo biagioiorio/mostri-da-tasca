@@ -50,10 +50,9 @@
         app:layout_constraintVertical_bias="0.71000004" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/button_modifica_profilo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onButtonModificaClick"
         android:text="Modifica"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -66,7 +65,6 @@
         android:id="@+id/button_indietro"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onButtonIndietroClick"
         android:text="Mappa"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

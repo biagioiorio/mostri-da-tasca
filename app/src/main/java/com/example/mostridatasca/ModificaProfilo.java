@@ -4,11 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -34,6 +36,7 @@ import java.io.FileNotFoundException;
 
 public class ModificaProfilo extends AppCompatActivity {
 
+    public static final String TAG = " Debug - ModificaProfilo ";
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";        // Chiave del session_id
     private static final int PICK_IMAGE = 100;
@@ -77,10 +80,10 @@ public class ModificaProfilo extends AppCompatActivity {
                 String newUsername = nuovoUsernameTextView.getText().toString();
 
                 if (newUsername.length() > 15){
-                    Log.d(" Debug - Modifica Profilo: ", " Bottone conferma modifiche > 15 --> " + newUsername);
+                    Log.d(TAG, " Bottone conferma modifiche > 15 --> " + newUsername);
                     Toast.makeText(getApplicationContext(),"Username oltre 15 lettere",Toast.LENGTH_SHORT).show();
                 }else{
-                    if(newUsername.isEmpty() && imageUri == null){
+                    if(newUsername.isEmpty() && immagine == null){
                         Toast.makeText(getApplicationContext(),"Nessuna modifica",Toast.LENGTH_SHORT).show();
                     }else{
 
@@ -92,14 +95,14 @@ public class ModificaProfilo extends AppCompatActivity {
                             if (!newUsername.isEmpty()) {
                                 jsonBody.put("username", newUsername);
                             }
-                            if (imageUri != null){
+                            if (immagine != null){
                                 jsonBody.put("img", immagine);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Log.d(" Debug - Modifica Profilo: ","problema");
+                            Log.d(TAG,"problema");
                         }
-                        Log.d(" Debug - Modifica Profilo: ","jsonbody: " + jsonBody.toString());
+                        Log.d(TAG,"jsonbody: " + jsonBody.toString());
 
 
                         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
@@ -113,7 +116,7 @@ public class ModificaProfilo extends AppCompatActivity {
                                         Intent intent = new Intent(getApplicationContext(), Profilo.class);
                                         startActivity(intent);
                                         Toast.makeText(getApplicationContext(),"Dati aggiornati correttamente",Toast.LENGTH_SHORT).show();
-                                        Log.d(" Debug - Modifica Profilo: ", "buttonConfermaModifiche --> onResponse");
+                                        Log.d(TAG, "buttonConfermaModifiche --> onResponse");
 
                                     }
                                 },
@@ -122,7 +125,7 @@ public class ModificaProfilo extends AppCompatActivity {
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
                                         Toast.makeText(getApplicationContext(),"Dati non aggiornati",Toast.LENGTH_SHORT).show();
-                                        Log.d(" Debug - Modifica Profilo: ", "buttonConfermaModifiche --> onErrorResponse");
+                                        Log.d(TAG, "buttonConfermaModifiche --> onErrorResponse");
                                     }
                                 }
                         );
@@ -140,7 +143,7 @@ public class ModificaProfilo extends AppCompatActivity {
                  * @author Betto
                  * ritorna alla pagina profilo
                  */
-                Log.d("Debug - Modifica Profilo: ", " buttonAnnullaModifiche ");
+                Log.d(TAG, " buttonAnnullaModifiche ");
                 Intent intent = new Intent(getApplicationContext(), Profilo.class);
                 startActivity(intent);
             }
@@ -171,21 +174,31 @@ public class ModificaProfilo extends AppCompatActivity {
         if(resultCode == RESULT_OK && requestCode == PICK_IMAGE){
 
             imageUri = data.getData();
-            Log.d(" Debug - Modifica Profilo: "," imageUri --> " + imageUri.toString());
-            ImageView imageView = (ImageView) findViewById(R.id.imageView);
+            Log.d(TAG," imageUri --> " + imageUri.toString());
+
+            Cursor returnCursor = getContentResolver().query(imageUri, null, null, null, null);
+            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+            returnCursor.moveToFirst();
+            Log.d(TAG,"Dimesione immagine selezionata" + Long.toString(returnCursor.getLong(sizeIndex)));
+
+            if (returnCursor.getLong(sizeIndex)< 99000) {
+                ImageView imageView = (ImageView) findViewById(R.id.imageView);
             /*
             IN ALTERNATIVA DIRETTAMENRE DA URI:
             imageView.setImageURI(imageUri);
             */
-            Bitmap bitmap = null;
-            try {
-                bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
-                imageView.setImageBitmap(bitmap);   //da Bitmap
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                Bitmap bitmap = null;
+                try {
+                    bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                    imageView.setImageBitmap(bitmap);   //da Bitmap
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                immagine = encodeImage(bitmap);
+                //Log.d(TAG," Immagine convertita in Base64 --> " + encodeImage(bitmap));
+            }else{
+                Toast.makeText(getApplicationContext(),"Immagine troppo pesante",Toast.LENGTH_SHORT).show();
             }
-            immagine = encodeImage(bitmap);
-            Log.d(" Debug - Modifica Profilo: "," Immagine convertita in Base64 --> " + encodeImage(bitmap));
         }
     }
 
