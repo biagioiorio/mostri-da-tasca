@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onResponse(JSONObject response) {
                         numberOfRequests--;
-                        Log.d(TAG,"setSessionIdFromServer() - Response get. numberOfRequests: "+numberOfRequests);
+                        Log.d(TAG,"setSessionIdFromServer() - Response get. numberOfRequests: " + numberOfRequests);
                         // Log.d(TAG, "Response: " + response.toString());
                         try {
                             sessionId = response.getString("session_id");
@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d(TAG, "sessionid-request Errore:"+error.getMessage());
+                        Log.d(TAG, "setSessionIdFromServer() Errore:"+error.getMessage());
                         // TODO: gestire l'errore
                     }
                 }
@@ -224,10 +224,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
          */
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
-
         editor.putString(SESSION_ID_KEY, sessionId);
         editor.apply();
-        Log.d(TAG, "session_id salvato nelle sharedPreferences");
+        Log.d(TAG, "saveSessionId() - session_id salvato nelle sharedPreferences: " + sessionId);
     }
 
 
@@ -246,10 +245,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // la mappa è pronta, si possono modificare le sue proprietà
         Log.d(TAG,"Style loaded");
         this.style = style;
+
         enableLocationComponent(); // Visualizza il pallino blu dell'utente
 
         this.symbolManager = new SymbolManager(mapView, mapboxMap, style);
-
         symbolManager.setIconAllowOverlap(true);
         symbolManager.setIconIgnorePlacement(true);
 
