@@ -46,7 +46,7 @@ public class Profilo extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, " Pulsante premuto: Indietro ");
-                Intent intent = new Intent(getApplicationContext(), ModificaProfilo.class);
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
             }
         });
