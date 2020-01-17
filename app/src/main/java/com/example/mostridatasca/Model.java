@@ -3,6 +3,12 @@ package com.example.mostridatasca;
 import java.util.ArrayList;
 
 public class Model {
+    /**
+     * @author Betto
+     * Model
+     * Singleton
+     * Arraylist con i nomi dei top players
+     */
     private static final Model ourInstance = new Model();
 
     private ArrayList<String> contacts = null;

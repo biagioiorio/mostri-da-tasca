@@ -7,7 +7,7 @@
     tools:context=".ModificaProfilo">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imageView_nuovaFotoProfilo"
         android:layout_width="264dp"
         android:layout_height="277dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -19,7 +19,7 @@
         tools:srcCompat="@tools:sample/avatars[12]" />
 
     <Button
-        android:id="@+id/button_immagine"
+        android:id="@+id/button_cambiaImmagine"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Cambia immagine"
@@ -29,7 +29,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/nuovoUsername"
+        android:id="@+id/textView_nuovoUsername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -42,7 +42,7 @@
         app:layout_constraintVertical_bias="0.71000004" />
 
     <Button
-        android:id="@+id/button_conferma_modifiche"
+        android:id="@+id/button_confermaModifiche"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Conferma"
@@ -54,7 +54,7 @@
         app:layout_constraintVertical_bias="0.89" />
 
     <Button
-        android:id="@+id/button_annulla_modifiche"
+        android:id="@+id/button_annullaModifiche"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="ANNULLA"
