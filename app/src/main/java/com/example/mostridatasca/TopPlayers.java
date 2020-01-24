@@ -90,7 +90,7 @@ public class TopPlayers extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d(TAG, " Volley_TopPlayer ERRORE ---> Volley OnErrorResponse " + error.toString());
-                        TextView tp = (TextView) findViewById(R.id.textView2);
+                        TextView tp = (TextView) findViewById(R.id.textView_TopPlayers);
                         tp.setText("Connsessione assente riprovare più tardi");
                     }
                 }

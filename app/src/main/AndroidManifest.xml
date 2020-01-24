@@ -13,12 +13,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Esito"></activity>
-        <activity android:name=".FightEat" />
-        <activity android:name=".ModificaProfilo" />
-        <activity android:name=".TopPlayers" />
-        <activity android:name=".Profilo" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".Esito"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".FightEat"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ModificaProfilo"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".TopPlayers"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Profilo"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -55,7 +55,7 @@ public class ModificaProfilo extends AppCompatActivity {
         //================================================================================
         // Intent
         //================================================================================
-        Button buttonImmagine = (Button) findViewById(R.id.button_immagine);
+        Button buttonImmagine = (Button) findViewById(R.id.button_cambia_immagine);
         Button buttonConfermaModifiche = (Button) findViewById(R.id.button_conferma_modifiche);
         Button buttonAnnullaModifiche = (Button) findViewById(R.id.button_annulla_modifiche);
 
@@ -76,7 +76,7 @@ public class ModificaProfilo extends AppCompatActivity {
                 /**
                  * @author Betto
                  */
-                TextView nuovoUsernameTextView = (TextView)findViewById(R.id.nuovoUsername);
+                TextView nuovoUsernameTextView = (TextView)findViewById(R.id.textView_nuovo_username);
                 String newUsername = nuovoUsernameTextView.getText().toString();
 
                 if (newUsername.length() > 15){
@@ -175,27 +175,25 @@ public class ModificaProfilo extends AppCompatActivity {
 
             imageUri = data.getData();
             Log.d(TAG," imageUri --> " + imageUri.toString());
+            Bitmap bitmap = null;
+            try {
+                bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 
+            /*
             Cursor returnCursor = getContentResolver().query(imageUri, null, null, null, null);
             int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
             returnCursor.moveToFirst();
             Log.d(TAG,"Dimesione immagine selezionata" + Long.toString(returnCursor.getLong(sizeIndex)));
 
             if (returnCursor.getLong(sizeIndex)< 99000) {
-                ImageView imageView = (ImageView) findViewById(R.id.imageView);
-            /*
-            IN ALTERNATIVA DIRETTAMENRE DA URI:
-            imageView.setImageURI(imageUri);
             */
-                Bitmap bitmap = null;
-                try {
-                    bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
-                    imageView.setImageBitmap(bitmap);   //da Bitmap
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+            if(encodeImage(bitmap).length()<137000){
+                ImageView imageView = (ImageView) findViewById(R.id.imageView_nuova_immagine);
+                imageView.setImageBitmap(bitmap);   //da uri --> imageView.setImageURI(imageUri);
                 immagine = encodeImage(bitmap);
-                //Log.d(TAG," Immagine convertita in Base64 --> " + encodeImage(bitmap));
             }else{
                 Toast.makeText(getApplicationContext(),"Immagine troppo pesante",Toast.LENGTH_SHORT).show();
             }
