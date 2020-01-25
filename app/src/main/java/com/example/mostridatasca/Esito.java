@@ -104,7 +104,6 @@ public class Esito extends AppCompatActivity {
         }
 
         Button mappa = (Button)findViewById(R.id.button_mappa);
-        mappa.setText("MAPPA");
         mappa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

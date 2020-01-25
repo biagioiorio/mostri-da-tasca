@@ -42,7 +42,7 @@ public class FightEat extends AppCompatActivity {
             // Intent
             //================================================================================
             Button mappa = (Button)findViewById(R.id.button_ritirata);
-            mappa.setText("MAPPA");
+            mappa.setText("    MAPPA    ");
             mappa.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -60,9 +60,9 @@ public class FightEat extends AppCompatActivity {
             if (isNear) azione.setEnabled(true);
 
             if (intent.getStringExtra("type").equals("MO")) {
-                azione.setText("AFFRONTA");
+                azione.setText("    AFFRONTA    ");
             }else{
-                azione.setText("MANGIA");
+                azione.setText("    MANGIA    ");
             }
 
             azione.setOnClickListener(new View.OnClickListener() {
