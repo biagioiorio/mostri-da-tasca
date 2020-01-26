@@ -75,6 +75,9 @@ public class TopPlayers extends AppCompatActivity {
                         for(int i = 0; i < topPlayers.length(); i++) {
                             try {
                                 Model.getInstance().add(topPlayers.getJSONObject(i).getString("username"));
+                                Log.d(TAG, " check username " + i + ", " + topPlayers.getJSONObject(i).getString("username"));
+                                Model.getInstance().addImg(topPlayers.getJSONObject(i).getString("img"));
+                                Log.d(TAG, " check username " + i + ", " + topPlayers.getJSONObject(i).getString("img"));
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }

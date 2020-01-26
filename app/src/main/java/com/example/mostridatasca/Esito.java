@@ -47,9 +47,9 @@ public class Esito extends AppCompatActivity {
                 jsonBody.put("target_id", intent.getStringExtra("id"));
             } catch (JSONException e) {
                 e.printStackTrace();
-                Log.d("JSON", "problema");
+                Log.d(TAG, "JSON, problema");
             }
-            Log.d("JSON", "jsonbody: " + jsonBody.toString());
+            Log.d(TAG, "JSON, jsonbody: " + jsonBody.toString());
 
 
             RequestQueue queue = Volley.newRequestQueue(this);
@@ -85,7 +85,7 @@ public class Esito extends AppCompatActivity {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                            Log.d("Volley", "Stringa: " + response.toString());
+                            Log.d(TAG, "Volley, Stringa: " + response.toString());
 
 
                         }
@@ -96,7 +96,7 @@ public class Esito extends AppCompatActivity {
                         public void onErrorResponse(VolleyError error) {
                             TextView textUsername = (TextView) findViewById(R.id.textUsername);
                             textUsername.setText("Errore di rete riprovare più tardi");
-                            Log.d("Volley", "Errore");
+                            Log.d(TAG, "Volley Errore");
                         }
                     }
             );

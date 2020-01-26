@@ -12,17 +12,21 @@ public class Model {
     private static final Model ourInstance = new Model();
 
     private ArrayList<String> contacts = null;
+    private ArrayList<String> imgs = null;
+
     public static Model getInstance() {
         return ourInstance;
     }
 
     private Model() {
         contacts = new ArrayList<String>();
+        imgs = new ArrayList<String>();
     }
 
     public String get(int index) {
         return contacts.get(index);
     }
+    public String getImg(int index){return imgs.get(index); }
 
     public int getSize() {
         return contacts.size();
@@ -31,9 +35,13 @@ public class Model {
     public void add(String nome){
         contacts.add(nome);
     }
+    public void addImg(String img){
+        imgs.add(img);
+    }
 
     public void clear(){
         contacts.clear();
+        imgs.clear();
     }
 
 }
