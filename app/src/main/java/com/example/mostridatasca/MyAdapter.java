@@ -7,7 +7,6 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,7 +28,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {     //come gestire la singola riga "position"
-        String text = Model.getInstance().get(position);
+        String text = Model.getInstance().getPlayerName(position);
         holder.setText(position + 1 + " " + text);
 
 
@@ -43,6 +42,6 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return Model.getInstance().getSize();   //numero di elementi da stampare
+        return Model.getInstance().getPlayersSize();   //numero di elementi da stampare
     }
 }
