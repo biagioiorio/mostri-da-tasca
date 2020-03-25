@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -35,6 +36,8 @@ public class Profilo extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profilo);
+
+        Log.d(TAG, Model.getInstance().moncanToString());
 
         //================================================================================
         // Intent

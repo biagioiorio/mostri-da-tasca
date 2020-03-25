@@ -108,6 +108,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         queue = Volley.newRequestQueue(this);
         numberOfRequests = 0;
 
+        Model.getInstance().clear();
+
         setSessionId();
         // ATTENZIONE LA CHIAMATA DI RETE È ASINCRONA. Ci dobbiamo assicurare che sia stato già settato il session_id.
         Log.d(TAG, "session_id settato -> " + this.sessionId);
@@ -407,6 +409,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Log.d(TAG, "getMonstersAndCandies - Response get: "+numberOfRequests);
                         //Log.d(TAG, "getMonstersAndCandies() - Response: " + response.toString());
                         monstersAndCandiesArraylist.clear(); // Pulisco l'arraylist dei mostri/caramelle dai dati vecchi
+                        Model.getInstance().clearMoncan();
                         Log.d(TAG,"monstersAndCandiesArraylist pulito.");
                         symbolManager.deleteAll();  //Pulisco i markers
                         Log.d(TAG,"Markers deleted.");
@@ -432,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     private void downloadImage(final MonsterCandy monsterCandy) {
-        String targetId = monsterCandy.getId();
+        final String targetId = monsterCandy.getId();
         String url = getString(R.string.base_url) + "getimage.php";
         String sessionId = sharedPreferences.getString(SESSION_ID_KEY, "");
 
@@ -467,7 +470,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         byte[] decodedString = Base64.decode(img_base64, Base64.DEFAULT);
                         Bitmap img_bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
+
                         monsterCandy.setImg(img_bitmap);    // setto la proprietà img dell'oggetto monsterCandy con l'immagine appena scaricata
+                        Model.getInstance().getMoncanById(targetId).setImg(img_bitmap);
+
                         showMonsterCandyOnMap(monsterCandy);  // visualizzo l'oggetto monsterCandy sulla mappa
 
                         if(numberOfRequests==0) addSymbolClickListener();
@@ -478,7 +484,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d(TAG, "downloadImage - Error: " + error.toString());
-                        // TODO: gestire l'errore
                     }
                 }
         );
@@ -524,6 +529,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // Creo l'oggetto monsterCandy con gli attributi estratti e lo aggiungo all'ArrayList con tutti i mostri/caramelle
             MonsterCandy monsterCandy = new MonsterCandy(this, id, type, size, name, lat, lon);
             this.monstersAndCandiesArraylist.add(monsterCandy);
+            Model.getInstance().addMoncan(monsterCandy);
             //Log.d(TAG,"MONSTER/CANDY added to list: " + monsterCandy.toString());
         }
     }

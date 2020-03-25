@@ -81,14 +81,20 @@ public class MonsterCandy {
 
     @Override
     public String toString() {
-        return "MonsterCandy{" +
+        String mcString = "MonsterCandy{" +
                 "id='" + id + '\'' +
                 ", type='" + type + '\'' +
                 ", size='" + size + '\'' +
                 ", name='" + name + '\'' +
                 ", lat=" + lat +
-                ", lon=" + lon +
-                '}';
+                ", lon=" + lon;
+        if (img != null){
+            mcString += ", img=S";
+        }else{
+            mcString += ", img=N";
+        }
+        mcString += img.toString().substring(0,15);
+        return mcString;
     }
 
     public Bitmap getImg() {
