@@ -2,6 +2,7 @@ package com.example.mostridatasca;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
     private static final long UPDATE_MONSTERS_AND_CANDIES_DELAY = 120000;
-    private static final double FIGHT_EAT_DISTANCE = 50.0;
+    private static final double FIGHT_EAT_DISTANCE = 50000.0;
 
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";       // Chiave del session_id
@@ -90,8 +91,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationEngine locationEngine;
     private LocationListeningCallback locationListeningCallback;
     private Location location;
-
-    private ArrayList<MonsterCandy> monstersAndCandiesArraylist = new ArrayList<>();
     private Handler handler;
     private Runnable runnableCode;
 
@@ -111,9 +110,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Model.getInstance().clearMoncan();
 
         setSessionId();
-        // ATTENZIONE LA CHIAMATA DI RETE È ASINCRONA. Ci dobbiamo assicurare che sia stato già settato il session_id.
+
         Log.d(TAG, "session_id settato -> " + this.sessionId);
-        // TODO: settare uno username nel caso di un nuovo utente.
 
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -260,7 +258,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onAnnotationClick(Symbol symbol) {
                 Log.d(TAG,"Simbolo ["+symbol.getIconImage()+"] toccato");
-                for(MonsterCandy monsterCandy : monstersAndCandiesArraylist){
+
+                for (int i =0; i<Model.getInstance().getMoncanSize(); i++){
+                    MonsterCandy monsterCandy = Model.getInstance().getMoncan(i);
+
                     if(monsterCandy.getId() == symbol.getIconImage()){
                         LatLng userPosition = new LatLng(location.getLatitude(),location.getLongitude());
                         LatLng symbolPosition = monsterCandy.getPosition();
@@ -287,7 +288,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
 
         // Scarica i mostri/caramelle ogni tot secondi
-        // TODO: run in un thread separato?
         handler = new Handler();
         runnableCode = new Runnable() {
             @Override
@@ -380,10 +380,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //================================================================================
     // Monsters and candies
     //================================================================================
-    private void getMonstersAndCandies() {
-        /**
-         * Fa la chiamata 'getMap' al server
-         */
+    private void getMonstersAndCandies() {              //  Fa la chiamata 'getMap' al server
 
         String url = getString(R.string.base_url) + "getmap.php";
 
@@ -407,15 +404,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         numberOfRequests--;
                         Log.d(TAG, "getMonstersAndCandies - Response get: "+numberOfRequests);
                         //Log.d(TAG, "getMonstersAndCandies() - Response: " + response.toString());
-                        monstersAndCandiesArraylist.clear(); // Pulisco l'arraylist dei mostri/caramelle dai dati vecchi
-                        Model.getInstance().clearMoncan();
-                        Log.d(TAG,"monstersAndCandiesArraylist pulito.");
+
                         symbolManager.deleteAll();  //Pulisco i markers
                         Log.d(TAG,"Markers deleted.");
+
                         parseMonstersAndCandiesResponse(response);  // carico i mostri/caramelle nell'arraylist
                         Log.d(TAG,"monstersAndCandiesArraylist aggiornato.");
-                        for(MonsterCandy monsterCandy : monstersAndCandiesArraylist){
-                            downloadImage(monsterCandy);
+
+                        for (int i =0; i<Model.getInstance().getMoncanSize(); i++){
+                            downloadImage(Model.getInstance().getMoncan(i));
                         }
                     }
                 },
@@ -429,6 +426,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         queue.add(getRequest);  // aggiungo la richiesta alla coda
         numberOfRequests++;
         Log.d(TAG, "getMonstersAndCandies - Request added. numberOfRequests: "+numberOfRequests);
+    }
+
+
+    private void parseMonstersAndCandiesResponse(JSONObject response) { // Prende la risposta di getMonstersAndCandies() [getmap], e la mette nel model
+
+        try {
+            Model.getInstance().addMoncanFromJSONArray(this, response.getJSONArray("mapobjects"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -468,7 +475,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         byte[] decodedString = Base64.decode(img_base64, Base64.DEFAULT);
                         Bitmap img_bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
-
                         monsterCandy.setImg(img_bitmap);    // setto la proprietà img dell'oggetto monsterCandy con l'immagine appena scaricata
                         Model.getInstance().getMoncanById(targetId).setImg(img_bitmap);
 
@@ -491,51 +497,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    private void parseMonstersAndCandiesResponse(JSONObject response) {
-        /***
-         * Prende la risposta di getMonstersAndCandies() [getmap],
-         * crea un oggetto MonsterCandy per ogni mostro/caramella
-         * e lo aggiunge all'arraylist monstersAndCandiesArraylist
-         * dichiarato nella MainActivity
-         */
-        JSONArray monstersAndCandiesArray = new JSONArray();
-        try {
-            monstersAndCandiesArray = response.getJSONArray("mapobjects");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public void showMonsterCandyOnMap(MonsterCandy monsterCandy) {      // Visualizza l'oggetto monsterCandy sulla mappa
 
-        for(int i = 0; i < monstersAndCandiesArray.length(); i++) {     // ciclo sui mostri/caramelle ricevuti nella risposta
-            String id, type, size, name;
-            double lat, lon;
-            id = type = size = name = "";
-            lat = lon = 0.0;
-
-            // Estraggo gli attributi da ogni JSONObject della risposta
-            try {
-                id = monstersAndCandiesArray.getJSONObject(i).getString("id");
-                type = monstersAndCandiesArray.getJSONObject(i).getString("type");
-                size = monstersAndCandiesArray.getJSONObject(i).getString("size");
-                name = monstersAndCandiesArray.getJSONObject(i).getString("name");
-                lat = monstersAndCandiesArray.getJSONObject(i).getDouble("lat");
-                lon = monstersAndCandiesArray.getJSONObject(i).getDouble("lon");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            // Creo l'oggetto monsterCandy con gli attributi estratti e lo aggiungo all'ArrayList con tutti i mostri/caramelle
-            MonsterCandy monsterCandy = new MonsterCandy(this, id, type, size, name, lat, lon);
-            this.monstersAndCandiesArraylist.add(monsterCandy);
-            Model.getInstance().addMoncan(monsterCandy);
-            //Log.d(TAG,"MONSTER/CANDY added to list: " + monsterCandy.toString());
-        }
-    }
-
-
-    public void showMonsterCandyOnMap(MonsterCandy monsterCandy) {
-        /***
-         * Visualizza l'oggetto monsterCandy sulla mappa
-         */
         Log.d(TAG,"showMonsterCandyOnMap("+monsterCandy.getId()+")");
         style.addImage(monsterCandy.getId(), monsterCandy.getImg());
         symbolManager.create(new SymbolOptions()

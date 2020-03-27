@@ -1,5 +1,6 @@
 package com.example.mostridatasca;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.mostridatasca.com.example.mostridatasca.models.MonsterCandy;
@@ -10,11 +11,14 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
+
 public class Model {
     /**
      * Model
      * Singleton
      */
+
+    public static final String TAG = " Debug - Model ";
     private static final Model ourInstance = new Model();
 
     private ArrayList<Player> players = null;
@@ -47,10 +51,23 @@ public class Model {
     public void addMoncan(MonsterCandy monsterCandy) { moncan.add(monsterCandy);}
     public void addPlayersFromJSONArray(JSONArray jsonArrayPlayers){
         players.clear();
+        Log.d(TAG,"playersArraylist pulito.");
         for(int i = 0; i < jsonArrayPlayers.length(); i++) {
             try {
                 Player player = new Player(jsonArrayPlayers.getJSONObject(i));
                 players.add(player);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public void addMoncanFromJSONArray(Context context, JSONArray jsonArrayMoncan){
+        moncan.clear();
+        Log.d(TAG,"moncanArraylist pulito.");
+        for (int i = 0; i<jsonArrayMoncan.length(); i++){
+            try {
+                MonsterCandy monsterCandy = new MonsterCandy(context, jsonArrayMoncan.getJSONObject(i));
+                moncan.add(monsterCandy);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -74,15 +91,18 @@ public class Model {
     }
 
     public void clearAll(){
+        Log.d(TAG,"model pulito.");
         players.clear();
         moncan.clear();
     }
 
     public void clearMoncan(){
         moncan.clear();
+        Log.d(TAG,"moncanArraylist pulito.");
     }
     public void clearPlayers(){
         players.clear();
+        Log.d(TAG,"playersArraylist pulito.");
     }
 
 }
