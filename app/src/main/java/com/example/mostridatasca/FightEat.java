@@ -12,24 +12,30 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.mostridatasca.com.example.mostridatasca.models.MonsterCandy;
+
 public class FightEat extends AppCompatActivity {
 
     private static final String TAG = "Debug - FightEat";
+    private MonsterCandy monsterCandy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fight_eat);
+        Log.d(TAG," Activity creata ");
 
         final Intent intent = getIntent();
-        if (intent.hasExtra("id") && intent.hasExtra("type") && intent.hasExtra("name") && intent.hasExtra("img") && intent.hasExtra("size")){
-            final String id = intent.getStringExtra("id");
-            final String type = intent.getStringExtra("type");
+        if (intent.hasExtra("id") && intent.hasExtra("isNear") && intent.hasExtra("distance")){
+
+            monsterCandy = Model.getInstance().getMoncanById(intent.getStringExtra("id"));
+            Log.d(TAG," monstercandy: " + monsterCandy.toString());
 
             TextView nome = (TextView)findViewById(R.id.textView_caramellaMostro);
-            nome.setText(intent.getStringExtra("name"));
+            nome.setText(monsterCandy.getName());
+
             TextView dimensione = (TextView)findViewById(R.id.textView_dimensione);
-            switch (intent.getStringExtra("size")){
+            switch (monsterCandy.getSize()){
                 case "S": dimensione.setText("Dimensione: piccola");
                 break;
                 case "M": dimensione.setText("Dimensione: media");
@@ -46,8 +52,8 @@ public class FightEat extends AppCompatActivity {
             mappa.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(intent);
+                    Intent intentMappa = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intentMappa);
                 }
             });
 
@@ -59,7 +65,7 @@ public class FightEat extends AppCompatActivity {
             Log.d(TAG,"isNear: " + isNear);
             if (isNear) azione.setEnabled(true);
 
-            if (intent.getStringExtra("type").equals("MO")) {
+            if (monsterCandy.getType().equals("MO")) {
                 azione.setText("    AFFRONTA    ");
             }else{
                 azione.setText("    MANGIA    ");
@@ -68,15 +74,15 @@ public class FightEat extends AppCompatActivity {
             azione.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent1 = new Intent(getApplicationContext(), Esito.class);
-                    intent1.putExtra("id", id);
-                    intent1.putExtra("type", type);
-                    startActivity(intent1);
+                    Intent intentAzione = new Intent(getApplicationContext(), Esito.class);
+                    intentAzione.putExtra("id", monsterCandy.getId());
+                    intentAzione.putExtra("type", monsterCandy.getType());
+                    startActivity(intentAzione);
                 }
             });
 
 
-            Bitmap bitmap = intent.getParcelableExtra("img");
+            Bitmap bitmap = monsterCandy.getImg();
             ImageView immagine = (ImageView)findViewById(R.id.imageView_caramellaMostro);
             immagine.setImageBitmap(bitmap);
 

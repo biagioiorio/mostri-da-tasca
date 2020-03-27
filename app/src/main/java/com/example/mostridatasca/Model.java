@@ -24,6 +24,7 @@ public class Model {
     private ArrayList<Player> players = null;
     private ArrayList<MonsterCandy> moncan = null;
 
+
     public static Model getInstance() {
         return ourInstance;
     }
@@ -37,11 +38,11 @@ public class Model {
     public MonsterCandy getMoncan(int index){ return moncan.get(index);}
 
     public MonsterCandy getMoncanById(String id){   // Fare attenzione: se l'ID non esiste ritorna null
-        MonsterCandy monsterCandy = null;
+
         for(MonsterCandy mc : moncan){
-            if(mc.getId() == id) monsterCandy = mc;
+            if(mc.getId().equals(id)){ return mc; }
         }
-        return monsterCandy;
+       return null;
     }
 
     public int getPlayersSize() { return players.size(); }

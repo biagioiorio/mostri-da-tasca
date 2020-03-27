@@ -275,10 +275,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         Intent intent = new Intent(getApplicationContext(), FightEat.class);
                         intent.putExtra("id", monsterCandy.getId());
-                        intent.putExtra("type", monsterCandy.getType());
-                        intent.putExtra("name", monsterCandy.getName());
-                        intent.putExtra("img", monsterCandy.getImg());
-                        intent.putExtra("size", monsterCandy.getSize());
                         intent.putExtra("isNear", isNear);
                         intent.putExtra("distance", symbolDistance);
                         startActivity(intent);
