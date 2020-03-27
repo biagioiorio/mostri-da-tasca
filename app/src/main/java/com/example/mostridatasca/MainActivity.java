@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         queue = Volley.newRequestQueue(this);
         numberOfRequests = 0;
 
-        Model.getInstance().clear();
+        Model.getInstance().clearMoncan();
 
         setSessionId();
         // ATTENZIONE LA CHIAMATA DI RETE È ASINCRONA. Ci dobbiamo assicurare che sia stato già settato il session_id.
@@ -382,7 +382,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //================================================================================
     private void getMonstersAndCandies() {
         /**
-         * @author Biagio Iorio
          * Fa la chiamata 'getMap' al server
          */
 
@@ -424,7 +423,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d(TAG, "getMonstersAndCandies - Error: " + error.toString());
-                        // TODO: gestire l'errore
                     }
                 }
         );
@@ -495,7 +493,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void parseMonstersAndCandiesResponse(JSONObject response) {
         /***
-         * @author Biagio Iorio
          * Prende la risposta di getMonstersAndCandies() [getmap],
          * crea un oggetto MonsterCandy per ogni mostro/caramella
          * e lo aggiunge all'arraylist monstersAndCandiesArraylist
@@ -537,7 +534,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void showMonsterCandyOnMap(MonsterCandy monsterCandy) {
         /***
-         * @author Biagio Iorio
          * Visualizza l'oggetto monsterCandy sulla mappa
          */
         Log.d(TAG,"showMonsterCandyOnMap("+monsterCandy.getId()+")");

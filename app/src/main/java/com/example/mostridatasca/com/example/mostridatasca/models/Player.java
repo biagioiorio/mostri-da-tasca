@@ -1,13 +1,25 @@
 package com.example.mostridatasca.com.example.mostridatasca.models;
 
-public class Players {
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class Player {
     private String name;
     private String img;
 
     // costruttore
-    public Players(String name, String img) {
+    public Player(String name, String img) {
         this.name = name;
         this.img = img;
+    }
+
+    public Player(JSONObject jsonObjectPlayer){
+        try {
+            this.name = jsonObjectPlayer.getString("username");
+            this.img = jsonObjectPlayer.getString("img");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     // getter

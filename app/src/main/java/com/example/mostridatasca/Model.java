@@ -1,19 +1,23 @@
 package com.example.mostridatasca;
 
+import android.util.Log;
+
 import com.example.mostridatasca.com.example.mostridatasca.models.MonsterCandy;
+import com.example.mostridatasca.com.example.mostridatasca.models.Player;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 
 public class Model {
     /**
-     * @author Betto
      * Model
      * Singleton
      */
     private static final Model ourInstance = new Model();
 
-    private ArrayList<String> players = null;
-    private ArrayList<String> imgs = null;
+    private ArrayList<Player> players = null;
     private ArrayList<MonsterCandy> moncan = null;
 
     public static Model getInstance() {
@@ -21,19 +25,14 @@ public class Model {
     }
 
     private Model() {
-        players = new ArrayList<String>();
-        imgs = new ArrayList<String>();
+        players = new ArrayList<Player>();
         moncan = new ArrayList<MonsterCandy>();
     }
 
-    public String getPlayerName(int index) {
-        return players.get(index);
-    }
-    public String getImg(int index) { return imgs.get(index); }
+    public Player getPlayer(int index){ return players.get(index);}
     public MonsterCandy getMoncan(int index){ return moncan.get(index);}
 
-    // Fare attanzione
-    public MonsterCandy getMoncanById(String id){
+    public MonsterCandy getMoncanById(String id){   // Fare attenzione: se l'ID non esiste ritorna null
         MonsterCandy monsterCandy = null;
         for(MonsterCandy mc : moncan){
             if(mc.getId() == id) monsterCandy = mc;
@@ -41,35 +40,49 @@ public class Model {
         return monsterCandy;
     }
 
-    public int getPlayersSize() {
-        return players.size();
-    }
+    public int getPlayersSize() { return players.size(); }
     public int getMoncanSize() { return moncan.size(); }
 
-    public void add(String nome){
-        players.add(nome);
-    }
-    public void addImg(String img){
-        imgs.add(img);
-    }
+    public void addPlayer(Player player){ players.add(player);}
     public void addMoncan(MonsterCandy monsterCandy) { moncan.add(monsterCandy);}
+    public void addPlayersFromJSONArray(JSONArray jsonArrayPlayers){
+        players.clear();
+        for(int i = 0; i < jsonArrayPlayers.length(); i++) {
+            try {
+                Player player = new Player(jsonArrayPlayers.getJSONObject(i));
+                players.add(player);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public String playersToString(){
+        String playersString = "";
+        for(Player player : players){
+            playersString += player.toString() + " ";
+        }
+        return playersString;
+    }
 
     public String moncanToString(){
         String moncanString = "";
-        for(MonsterCandy mc : moncan){
-            moncanString += mc.toString() + " ";
+        for(MonsterCandy monsterCandy : moncan){
+            moncanString += monsterCandy.toString() + " ";
         }
         return moncanString;
     }
 
-    public void clear(){
+    public void clearAll(){
         players.clear();
-        imgs.clear();
         moncan.clear();
     }
 
     public void clearMoncan(){
         moncan.clear();
+    }
+    public void clearPlayers(){
+        players.clear();
     }
 
 }

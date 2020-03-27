@@ -7,6 +7,8 @@ import android.graphics.BitmapFactory;
 import com.example.mostridatasca.R;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
+import org.json.JSONObject;
+
 public class MonsterCandy {
     private String id;
     private String type;
@@ -24,6 +26,10 @@ public class MonsterCandy {
         this.lat = lat;
         this.lon = lon;
         this.img = BitmapFactory.decodeResource(context.getResources(), R.drawable.default_marker);
+    }
+
+    public MonsterCandy(JSONObject jsonObjectMoncan){
+
     }
 
     public LatLng getPosition() {

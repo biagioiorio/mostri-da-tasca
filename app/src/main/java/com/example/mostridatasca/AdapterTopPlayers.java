@@ -10,33 +10,30 @@ import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
-    /**
-     * @author Betto Matteo
-     */
+public class AdapterTopPlayers extends RecyclerView.Adapter<ViewHolderTopPlayers> {
+
     private LayoutInflater mInflater;
 
-    public MyAdapter(Context context) {
+    public AdapterTopPlayers(Context context) {
         this.mInflater = LayoutInflater.from(context);
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolderTopPlayers onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.single_row, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolderTopPlayers(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {     //come gestire la singola riga "position"
-        String text = Model.getInstance().getPlayerName(position);
+    public void onBindViewHolder(ViewHolderTopPlayers holder, int position) {     //come gestire la singola riga "position"
+        String text = Model.getInstance().getPlayer(position).getName();
         holder.setText(position + 1 + " " + text);
 
 
-        byte[] decodedString = Base64.decode(Model.getInstance().getImg(position), Base64.DEFAULT);
+        byte[] decodedString = Base64.decode(Model.getInstance().getPlayer(position).getImg(), Base64.DEFAULT);
         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
-        holder.myImageView.setImageBitmap(decodedByte);
-
+        holder.imgView_playerImg.setImageBitmap(decodedByte);
 
     }
 

@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,7 +36,6 @@ public class TopPlayers extends AppCompatActivity {
 
     private void getTopPlayers() {
         /**
-         * @author Betto Matteo
          * Fa la chiamata 'ranking' al server
          */
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -69,22 +67,12 @@ public class TopPlayers extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        //Svuoto l'arrayList
-                        Model.getInstance().clear();
-                        //ciclo e aggiungo al Model
-                        for(int i = 0; i < topPlayers.length(); i++) {
-                            try {
-                                Model.getInstance().add(topPlayers.getJSONObject(i).getString("username"));
-                                Log.d(TAG, " check username " + i + ", " + topPlayers.getJSONObject(i).getString("username"));
-                                Model.getInstance().addImg(topPlayers.getJSONObject(i).getString("img"));
-                                Log.d(TAG, " check username " + i + ", " + topPlayers.getJSONObject(i).getString("img"));
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
+
+                        Model.getInstance().addPlayersFromJSONArray(topPlayers);    // Svuota l'arraylist e aggiunge i topPlayers al model
+
                         RecyclerView recyclerView = findViewById(R.id.recyclerView);
                         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                        MyAdapter adapter = new MyAdapter(getApplicationContext());
+                        AdapterTopPlayers adapter = new AdapterTopPlayers(getApplicationContext());
                         recyclerView.setAdapter(adapter);
                     }
                 },
@@ -94,7 +82,7 @@ public class TopPlayers extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         Log.d(TAG, " Volley_TopPlayer ERRORE ---> Volley OnErrorResponse " + error.toString());
                         TextView tp = (TextView) findViewById(R.id.textView_TopPlayers);
-                        tp.setText("Connsessione assente riprovare più tardi");
+                        tp.setText("Connessione assente riprovare più tardi");
                     }
                 }
         );
