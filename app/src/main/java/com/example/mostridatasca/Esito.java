@@ -20,6 +20,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.mostridatasca.com.example.mostridatasca.models.MonsterCandy;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,14 +38,15 @@ public class Esito extends AppCompatActivity {
         setContentView(R.layout.activity_esito);
 
         final Intent intent = getIntent();
-        if (intent.hasExtra("id") && intent.hasExtra("type")) {
+        if (intent.hasExtra("id")) {
 
+            final MonsterCandy monsterCandy = Model.getInstance().getMoncanById(intent.getStringExtra("id"));
             final JSONObject jsonBody = new JSONObject();
             SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE);
 
             try {
                 jsonBody.put("session_id", sharedPreferences.getString(SESSION_ID_KEY, ""));
-                jsonBody.put("target_id", intent.getStringExtra("id"));
+                jsonBody.put("target_id", monsterCandy.getId());
             } catch (JSONException e) {
                 e.printStackTrace();
                 Log.d(TAG, "JSON, problema");
@@ -62,7 +64,7 @@ public class Esito extends AppCompatActivity {
                         public void onResponse(JSONObject response) {
                             try {
                                 TextView frase = (TextView) findViewById(R.id.textView_frase);
-                                if (intent.getStringExtra("type").equals("CA")){
+                                if (monsterCandy.getType().equals("CA")){
                                     frase.setText("Buon appetito!");
                                 }else{
                                     if (response.getString("died").equals("false")){

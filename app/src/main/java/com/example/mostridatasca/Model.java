@@ -65,6 +65,7 @@ public class Model {
     public void addMoncanFromJSONArray(Context context, JSONArray jsonArrayMoncan){
         moncan.clear();
         Log.d(TAG,"moncanArraylist pulito.");
+
         for (int i = 0; i<jsonArrayMoncan.length(); i++){
             try {
                 MonsterCandy monsterCandy = new MonsterCandy(context, jsonArrayMoncan.getJSONObject(i));
@@ -73,6 +74,7 @@ public class Model {
                 e.printStackTrace();
             }
         }
+        Log.d(TAG,"moncanArraylist aggiornato.");
     }
 
     public String playersToString(){

@@ -121,4 +121,12 @@ public class MonsterCandy {
     public void setImg(Bitmap img) {
         this.img = img;
     }
+
+    public double distanceTo(LatLng latLng){
+        return latLng.distanceTo(this.getPosition());
+    }
+
+    public boolean isNear(LatLng latLng, double distanza){
+        return this.distanceTo(latLng) <= distanza;
+    }
 }

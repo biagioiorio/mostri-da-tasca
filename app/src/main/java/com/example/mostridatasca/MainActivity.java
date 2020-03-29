@@ -2,7 +2,6 @@ package com.example.mostridatasca;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -20,7 +19,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,13 +49,11 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 
 
-//TODO: Aggiungere pulsante per centrare la camera sulla posizione dell'utente
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, Style.OnStyleLoaded, PermissionsListener {
 
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
@@ -68,11 +64,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static final String SHARED_PREFS_NAME = "sharedPrefs";   // Nome delle SharedPreferences
     public static final String SESSION_ID_KEY = "sessionId";       // Chiave del session_id
 
-    public static final String SYMBOL_IMAGE = "default_marker";
-
     public static final String TAG = " Debug - MainActivity ";
-
-    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // serve per identificare i permessi in caso volessi gestirli
 
     private SharedPreferences sharedPreferences;
     private String sessionId;
@@ -87,10 +79,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private OnSymbolClickListener onSymbolClickListener;
 
     private PermissionsManager permissionsManager;
-    private LocationComponent locationComponent;
     private LocationEngine locationEngine;
     private LocationListeningCallback locationListeningCallback;
     private Location location;
+
     private Handler handler;
     private Runnable runnableCode;
 
@@ -110,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Model.getInstance().clearMoncan();
 
         setSessionId();
-
         Log.d(TAG, "session_id settato -> " + this.sessionId);
 
         mapView = findViewById(R.id.mapView);
@@ -124,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Intent
         //================================================================================
         Button pulsanteProfilo = (Button)findViewById(R.id.button_profilo);
-        Button pulsanteElenco = (Button)findViewById(R.id.button_elenco);
+        Button pulsanteTopPlayers = (Button)findViewById(R.id.button_topPlayers);
 
         pulsanteProfilo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,10 +126,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        pulsanteElenco.setOnClickListener(new View.OnClickListener() {
+        pulsanteTopPlayers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "Elenco");
+                Log.d(TAG, " Pulsante TopPlayers premuto ");
                 Intent intent = new Intent(getApplicationContext(), TopPlayers.class);
                 startActivity(intent);
             }
@@ -152,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //================================================================================
     public void setSessionId() {
         /**
-         * @author Biagio Iorio
          * Setta il valore del session_id con il valore memorizzato nelle SharedPreferences
          * con la chiave SESSION_ID_KEY. Se è vuoto dire che l'utente è nuovo:
          * faccio una chiamata di rete (nel metodo setSessionIdFromServer())
@@ -161,7 +151,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         this.sessionId = sharedPreferences.getString(SESSION_ID_KEY, "");
         this.testSessionId = getResources().getString(R.string.test_session_id);
-        // this.sessionId = "";  // DEBUG: decommentare per simulare un nuovo utente.
         if (!this.testSessionId.isEmpty()){
             saveSessionId(this.testSessionId);
         }else{
@@ -170,17 +159,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 setSessionIdFromServer();
             }
         }
-
     }
+
+
+    public void saveSessionId(String sessionId) {
+        /**
+         * Salva in modo persistente il session_id dell'utente,
+         * se non è già presente, nelle SharedPreferences
+         */
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(SESSION_ID_KEY, sessionId);
+        editor.apply();
+        Log.d(TAG, "saveSessionId() - session_id salvato nelle sharedPreferences: " + sessionId);
+    }
+
 
     private void setSessionIdFromServer() {
         /**
-         * @author Biagio Iorio
          * Fa la chiamata 'Register' al server e salva il valore ricevuto (session_id)
          * nelle SharedPreferences con il metodo saveSessionId(sessionId).
          */
 
-        //RequestQueue queue = Volley.newRequestQueue(this);
         String url = getString(R.string.base_url) + "register.php";
 
         // prepare the request
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onResponse(JSONObject response) {
                         numberOfRequests--;
                         Log.d(TAG,"setSessionIdFromServer() - Response get. numberOfRequests: " + numberOfRequests);
-                        // Log.d(TAG, "Response: " + response.toString());
+
                         try {
                             sessionId = response.getString("session_id");
                             saveSessionId(sessionId);
@@ -206,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d(TAG, "setSessionIdFromServer() Errore:"+error.getMessage());
-                        // TODO: gestire l'errore
                     }
                 }
         );
@@ -214,19 +213,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         queue.add(getRequest);
         numberOfRequests++;
         Log.d(TAG,"setSessionIdFromServer() - Request added. numberOfRequests: "+numberOfRequests);
-    }
-
-    public void saveSessionId(String sessionId) {
-        /**
-         * @author Biagio Iorio
-         * Salva in modo persistente il session_id dell'utente,
-         * se non è già presente, nelle SharedPreferences
-         */
-
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(SESSION_ID_KEY, sessionId);
-        editor.apply();
-        Log.d(TAG, "saveSessionId() - session_id salvato nelle sharedPreferences: " + sessionId);
     }
 
 
@@ -257,26 +243,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         onSymbolClickListener = new OnSymbolClickListener() {
             @Override
             public void onAnnotationClick(Symbol symbol) {
-                Log.d(TAG,"Simbolo ["+symbol.getIconImage()+"] toccato");
+                Log.d(TAG,"Simbolo ["+symbol.getIconImage()+"] toccato");   // getIconImage() ritorna l'id del simbolo
 
                 for (int i =0; i<Model.getInstance().getMoncanSize(); i++){
                     MonsterCandy monsterCandy = Model.getInstance().getMoncan(i);
 
                     if(monsterCandy.getId() == symbol.getIconImage()){
                         LatLng userPosition = new LatLng(location.getLatitude(),location.getLongitude());
-                        LatLng symbolPosition = monsterCandy.getPosition();
-                        double symbolDistance = userPosition.distanceTo(symbolPosition);
-                        Boolean isNear = false;
-                        Log.d(TAG,"symbolDistance: "+symbolDistance);
-                        if(symbolDistance <= FIGHT_EAT_DISTANCE) {
-                            Log.d(TAG, "simbolo affrontabile/mangiabile");
-                            isNear = true;
-                        }
 
                         Intent intent = new Intent(getApplicationContext(), FightEat.class);
                         intent.putExtra("id", monsterCandy.getId());
-                        intent.putExtra("isNear", isNear);
-                        intent.putExtra("distance", symbolDistance);
+                        intent.putExtra("isNear", monsterCandy.isNear(userPosition, FIGHT_EAT_DISTANCE));
+                        intent.putExtra("distance", monsterCandy.distanceTo(userPosition));
                         startActivity(intent);
                     }
                 }
@@ -295,11 +273,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
         handler.post(runnableCode);
 
-
-
-        /*if(!monstersAndCandiesArraylist.isEmpty()){
-            showMonsterCandyOnMap();
-        }*/
     }
 
     private void enableLocationComponent() {
@@ -397,15 +370,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onResponse(JSONObject response) {
+
                         numberOfRequests--;
                         Log.d(TAG, "getMonstersAndCandies - Response get: "+numberOfRequests);
-                        //Log.d(TAG, "getMonstersAndCandies() - Response: " + response.toString());
+                        Log.d(TAG, "getMonstersAndCandies() - Response: " + response.toString());
 
                         symbolManager.deleteAll();  //Pulisco i markers
                         Log.d(TAG,"Markers deleted.");
 
-                        parseMonstersAndCandiesResponse(response);  // carico i mostri/caramelle nell'arraylist
-                        Log.d(TAG,"monstersAndCandiesArraylist aggiornato.");
+                        Log.d(TAG,"parseMonstersAndCandiesResponse(response): ");
+                        parseMonstersAndCandiesResponse(response);  // carico i mostri/caramelle nel model
 
                         for (int i =0; i<Model.getInstance().getMoncanSize(); i++){
                             downloadImage(Model.getInstance().getMoncan(i));
@@ -449,7 +423,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             e.printStackTrace();
             Log.d(TAG,"downloadImage() - JSON: problema");
         }
-        //Log.d(TAG,"downloadImage() - JSON body: " + jsonBody.toString());
 
         // prepare the request
         JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
@@ -472,7 +445,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Bitmap img_bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
                         monsterCandy.setImg(img_bitmap);    // setto la proprietà img dell'oggetto monsterCandy con l'immagine appena scaricata
-                        Model.getInstance().getMoncanById(targetId).setImg(img_bitmap);
 
                         showMonsterCandyOnMap(monsterCandy);  // visualizzo l'oggetto monsterCandy sulla mappa
 

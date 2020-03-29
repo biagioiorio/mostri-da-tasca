@@ -28,6 +28,7 @@ public class FightEat extends AppCompatActivity {
         final Intent intent = getIntent();
         if (intent.hasExtra("id") && intent.hasExtra("isNear") && intent.hasExtra("distance")){
 
+            Log.d(TAG, intent.getExtras().toString());
             monsterCandy = Model.getInstance().getMoncanById(intent.getStringExtra("id"));
             Log.d(TAG," monstercandy: " + monsterCandy.toString());
 
@@ -62,7 +63,7 @@ public class FightEat extends AppCompatActivity {
 
             // abilita il pulsante affronta/mangia se il simbolo è vicino all'utente
             boolean isNear = intent.getBooleanExtra("isNear", false);
-            Log.d(TAG,"isNear: " + isNear);
+
             if (isNear) azione.setEnabled(true);
 
             if (monsterCandy.getType().equals("MO")) {
@@ -76,7 +77,6 @@ public class FightEat extends AppCompatActivity {
                 public void onClick(View view) {
                     Intent intentAzione = new Intent(getApplicationContext(), Esito.class);
                     intentAzione.putExtra("id", monsterCandy.getId());
-                    intentAzione.putExtra("type", monsterCandy.getType());
                     startActivity(intentAzione);
                 }
             });
