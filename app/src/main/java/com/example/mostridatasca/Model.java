@@ -1,10 +1,12 @@
 package com.example.mostridatasca;
 
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
 
 import com.example.mostridatasca.com.example.mostridatasca.models.MonsterCandy;
 import com.example.mostridatasca.com.example.mostridatasca.models.Player;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,6 +25,7 @@ public class Model {
 
     private ArrayList<Player> players = null;
     private ArrayList<MonsterCandy> moncan = null;
+    private LatLng location;
 
 
     public static Model getInstance() {
@@ -36,6 +39,7 @@ public class Model {
 
     public Player getPlayer(int index){ return players.get(index);}
     public MonsterCandy getMoncan(int index){ return moncan.get(index);}
+    public LatLng getLocation(){ return location; }
 
     public MonsterCandy getMoncanById(String id){   // Fare attenzione: se l'ID non esiste ritorna null
 
@@ -50,6 +54,10 @@ public class Model {
 
     public void addPlayer(Player player){ players.add(player);}
     public void addMoncan(MonsterCandy monsterCandy) { moncan.add(monsterCandy);}
+    public void setLocation(Location location){
+        this.location = new LatLng(location.getLatitude(),location.getLongitude());
+    }
+
     public void addPlayersFromJSONArray(JSONArray jsonArrayPlayers){
         players.clear();
         Log.d(TAG,"playersArraylist pulito.");

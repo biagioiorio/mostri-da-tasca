@@ -557,6 +557,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
              */
             Log.d(TAG,"LocationListeningCallback: Location changed.");
             mainActivity.location = result.getLastLocation();   // Aggiorno la variabile location della mainActivity con la posizione attuale
+            Model.getInstance().setLocation(mainActivity.location);
+            Log.d(TAG,"LocationListeningCallback: Model.location updated: "+Model.getInstance().getLocation().toString());
             if (mainActivity.mapboxMap != null && result.getLastLocation() != null) {
                 mainActivity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
             }
