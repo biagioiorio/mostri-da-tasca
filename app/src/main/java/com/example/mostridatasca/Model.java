@@ -25,7 +25,7 @@ public class Model {
 
     private ArrayList<Player> players = null;
     private ArrayList<MonsterCandy> moncan = null;
-    private LatLng location;
+    private LatLng userPosition;
 
 
     public static Model getInstance() {
@@ -39,7 +39,7 @@ public class Model {
 
     public Player getPlayer(int index){ return players.get(index);}
     public MonsterCandy getMoncan(int index){ return moncan.get(index);}
-    public LatLng getLocation(){ return location; }
+    public LatLng getUserPosition(){ return userPosition; }
 
     public MonsterCandy getMoncanById(String id){   // Fare attenzione: se l'ID non esiste ritorna null
 
@@ -54,8 +54,8 @@ public class Model {
 
     public void addPlayer(Player player){ players.add(player);}
     public void addMoncan(MonsterCandy monsterCandy) { moncan.add(monsterCandy);}
-    public void setLocation(Location location){
-        this.location = new LatLng(location.getLatitude(),location.getLongitude());
+    public void setUserPosition(Location userPosition){
+        this.userPosition = new LatLng(userPosition.getLatitude(), userPosition.getLongitude());
     }
 
     public void addPlayersFromJSONArray(JSONArray jsonArrayPlayers){

@@ -18,6 +18,7 @@ public class MonsterCandy {
     private double lat;
     private double lon;
     private Bitmap img;
+    private double distance;
 
     public MonsterCandy(Context context, String id, String type, String size, String name, double lat, double lon) {
         this.id = id;

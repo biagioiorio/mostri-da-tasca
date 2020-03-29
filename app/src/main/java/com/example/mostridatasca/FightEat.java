@@ -26,11 +26,12 @@ public class FightEat extends AppCompatActivity {
         Log.d(TAG," Activity creata ");
 
         final Intent intent = getIntent();
-        if (intent.hasExtra("id") && intent.hasExtra("isNear") && intent.hasExtra("distance")){
+        if (intent.hasExtra("id") && intent.hasExtra("isNear")){
 
             Log.d(TAG, intent.getExtras().toString());
             monsterCandy = Model.getInstance().getMoncanById(intent.getStringExtra("id"));
             Log.d(TAG," monstercandy: " + monsterCandy.toString());
+            Log.d(TAG," distance: " + monsterCandy.distanceTo(Model.getInstance().getUserPosition()));
 
             TextView nome = (TextView)findViewById(R.id.textView_caramellaMostro);
             nome.setText(monsterCandy.getName());

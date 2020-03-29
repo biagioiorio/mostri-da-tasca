@@ -249,12 +249,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     MonsterCandy monsterCandy = Model.getInstance().getMoncan(i);
 
                     if(monsterCandy.getId() == symbol.getIconImage()){
-                        LatLng userPosition = new LatLng(location.getLatitude(),location.getLongitude());
+                        LatLng userPosition = Model.getInstance().getUserPosition();
 
                         Intent intent = new Intent(getApplicationContext(), FightEat.class);
                         intent.putExtra("id", monsterCandy.getId());
                         intent.putExtra("isNear", monsterCandy.isNear(userPosition, FIGHT_EAT_DISTANCE));
-                        intent.putExtra("distance", monsterCandy.distanceTo(userPosition));
                         startActivity(intent);
                     }
                 }
@@ -557,8 +556,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
              */
             Log.d(TAG,"LocationListeningCallback: Location changed.");
             mainActivity.location = result.getLastLocation();   // Aggiorno la variabile location della mainActivity con la posizione attuale
-            Model.getInstance().setLocation(mainActivity.location);
-            Log.d(TAG,"LocationListeningCallback: Model.location updated: "+Model.getInstance().getLocation().toString());
+            Model.getInstance().setUserPosition(mainActivity.location);
+            Log.d(TAG,"LocationListeningCallback: Model.location updated: "+Model.getInstance().getUserPosition().toString());
             if (mainActivity.mapboxMap != null && result.getLastLocation() != null) {
                 mainActivity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
             }
