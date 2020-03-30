@@ -111,7 +111,7 @@ public class MonsterCandy {
         }else{
             mcString += ", img=N";
         }
-        mcString += img.toString().substring(0,15);
+        //mcString += img.toString().substring(0,15);
         return mcString;
     }
 

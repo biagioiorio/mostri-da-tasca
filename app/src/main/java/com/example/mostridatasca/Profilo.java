@@ -37,8 +37,6 @@ public class Profilo extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profilo);
 
-        Log.d(TAG, Model.getInstance().moncanToString());
-
         //================================================================================
         // Intent
         //================================================================================
